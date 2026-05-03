@@ -576,15 +576,171 @@ namespace TalosCore
             if (screenX.HasValue && screenY.HasValue &&
                 TryGetNativeNameFromPoint(screenX.Value, screenY.Value, out nativeName))
             {
-                return nativeName;
+                return CorrectWinFormsEditName(element, nativeName);
             }
 
             if (TryGetNativeNameFromHandle(element, out nativeName))
             {
-                return nativeName;
+                return CorrectWinFormsEditName(element, nativeName);
             }
 
-            return GetStringProperty(element, AutomationElement.NameProperty);
+            return CorrectWinFormsEditName(element, GetStringProperty(element, AutomationElement.NameProperty));
+        }
+
+        private string CorrectWinFormsEditName(AutomationElement element, string providerName)
+        {
+            if (element == null || string.IsNullOrEmpty(providerName) || !IsWinFormsEdit(element))
+            {
+                return providerName ?? string.Empty;
+            }
+
+            string nearestLabelName;
+
+            if (!TryGetNearestLeftTextSiblingName(element, out nearestLabelName) ||
+                string.IsNullOrEmpty(nearestLabelName) ||
+                NamesMatch(providerName, nearestLabelName))
+            {
+                return providerName;
+            }
+
+            return HasSiblingTextName(element, providerName) ? nearestLabelName : providerName;
+        }
+
+        private bool IsWinFormsEdit(AutomationElement element)
+        {
+            return string.Equals(ControlTypeToName(GetControlType(element)), "Edit", StringComparison.OrdinalIgnoreCase) &&
+                (GetStringProperty(element, AutomationElement.ClassNameProperty) ?? string.Empty).StartsWith(
+                    "WindowsForms10.EDIT",
+                    StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool TryGetNearestLeftTextSiblingName(AutomationElement element, out string name)
+        {
+            name = string.Empty;
+            AutomationElement parent = TreeWalker.ControlViewWalker.GetParent(element);
+
+            if (parent == null)
+            {
+                return false;
+            }
+
+            WindowsRect editRectangle = GetBoundingRectangle(element);
+
+            if (editRectangle.IsEmpty)
+            {
+                return false;
+            }
+
+            AutomationElementCollection siblings = parent.FindAll(
+                TreeScope.Children,
+                System.Windows.Automation.Condition.TrueCondition);
+            double bestDistance = double.MaxValue;
+            double bestVerticalDelta = double.MaxValue;
+
+            foreach (AutomationElement sibling in siblings)
+            {
+                if (AutomationElement.Equals(sibling, element) ||
+                    !string.Equals(ControlTypeToName(GetControlType(sibling)), "Text", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                string siblingName = GetStringProperty(sibling, AutomationElement.NameProperty);
+
+                if (string.IsNullOrEmpty(siblingName))
+                {
+                    continue;
+                }
+
+                WindowsRect siblingRectangle = GetBoundingRectangle(sibling);
+
+                if (siblingRectangle.IsEmpty || !IsLeftRowLabel(editRectangle, siblingRectangle))
+                {
+                    continue;
+                }
+
+                double horizontalDistance = editRectangle.X - (siblingRectangle.X + siblingRectangle.Width);
+                double verticalDelta = Math.Abs(GetCenterY(editRectangle) - GetCenterY(siblingRectangle));
+
+                if (horizontalDistance < bestDistance ||
+                    (Math.Abs(horizontalDistance - bestDistance) < 0.1 && verticalDelta < bestVerticalDelta))
+                {
+                    bestDistance = horizontalDistance;
+                    bestVerticalDelta = verticalDelta;
+                    name = siblingName;
+                }
+            }
+
+            return !string.IsNullOrEmpty(name);
+        }
+
+        private bool IsLeftRowLabel(WindowsRect editRectangle, WindowsRect labelRectangle)
+        {
+            const double LeftTolerance = 4.0;
+            double labelRight = labelRectangle.X + labelRectangle.Width;
+
+            if (labelRight > editRectangle.X + LeftTolerance)
+            {
+                return false;
+            }
+
+            return RectanglesOverlapVertically(editRectangle, labelRectangle) ||
+                Math.Abs(GetCenterY(editRectangle) - GetCenterY(labelRectangle)) <= Math.Max(editRectangle.Height, labelRectangle.Height);
+        }
+
+        private bool RectanglesOverlapVertically(WindowsRect first, WindowsRect second)
+        {
+            double firstBottom = first.Y + first.Height;
+            double secondBottom = second.Y + second.Height;
+            return first.Y <= secondBottom && second.Y <= firstBottom;
+        }
+
+        private double GetCenterY(WindowsRect rectangle)
+        {
+            return rectangle.Y + (rectangle.Height / 2.0);
+        }
+
+        private bool HasSiblingTextName(AutomationElement element, string expectedName)
+        {
+            AutomationElement parent = TreeWalker.ControlViewWalker.GetParent(element);
+
+            if (parent == null || string.IsNullOrEmpty(expectedName))
+            {
+                return false;
+            }
+
+            AutomationElementCollection siblings = parent.FindAll(
+                TreeScope.Children,
+                System.Windows.Automation.Condition.TrueCondition);
+
+            foreach (AutomationElement sibling in siblings)
+            {
+                if (AutomationElement.Equals(sibling, element) ||
+                    !string.Equals(ControlTypeToName(GetControlType(sibling)), "Text", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (NamesMatch(expectedName, GetStringProperty(sibling, AutomationElement.NameProperty)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool NamesMatch(string first, string second)
+        {
+            return string.Equals(
+                NormalizeLabelName(first),
+                NormalizeLabelName(second),
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        private string NormalizeLabelName(string name)
+        {
+            return (name ?? string.Empty).Trim().TrimEnd(':').Trim();
         }
 
         private bool TryGetNativeNameFromPoint(int screenX, int screenY, out string name)
