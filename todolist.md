@@ -14,42 +14,42 @@ This checklist is based on `PRD.md` and the current project state. Use it as a l
 
 ## Phase 1 - Core Data Model
 
-- [ ] Create `TestSuite` model.
-- [ ] Add suite fields:
-  - [ ] `SchemaVersion`
-  - [ ] `SuiteName`
-  - [ ] `TargetAppPath`
-  - [ ] `LaunchParams`
-  - [ ] `DefaultFixedDelayMs`
-  - [ ] `AutoRelaunchBetweenTests`
-  - [ ] `Tests`
-- [ ] Create `TestCase` model.
-- [ ] Add test case fields:
-  - [ ] `Name`
-  - [ ] `Description`
-  - [ ] `Steps`
-  - [ ] `Conditions`
-- [ ] Create `Step` model.
-- [ ] Add step fields:
-  - [ ] `Id`
-  - [ ] `Locator`
-  - [ ] `Action`
-  - [ ] `Parameters`
-  - [ ] `FixedDelayMs`
-- [ ] Create `StepAction` enum:
-  - [ ] `Invoke`
-  - [ ] `SetValue`
-  - [ ] `SelectItem`
-  - [ ] `SendKeys`
-- [ ] Create `StepParameters` model.
-- [ ] Create `UiElementInfo` runtime DTO.
-- [ ] Create `ElementLocator` persistence DTO.
-- [ ] Create `AncestorDescriptor` model.
-- [ ] Create rectangle DTO for persisted bounding rectangles.
-- [ ] Create `TestConditions` model.
-- [ ] Create `ValueCheck` model.
-- [ ] Create expected and forbidden window condition models.
-- [ ] Add conversion from `UiElementInfo` to `ElementLocator`.
+- [x] Create `TestSuite` model.
+- [x] Add suite fields:
+  - [x] `SchemaVersion`
+  - [x] `SuiteName`
+  - [x] `TargetAppPath`
+  - [x] `LaunchParams`
+  - [x] `DefaultFixedDelayMs`
+  - [x] `AutoRelaunchBetweenTests`
+  - [x] `Tests`
+- [x] Create `TestCase` model.
+- [x] Add test case fields:
+  - [x] `Name`
+  - [x] `Description`
+  - [x] `Steps`
+  - [x] `Conditions`
+- [x] Create `Step` model.
+- [x] Add step fields:
+  - [x] `Id`
+  - [x] `Locator`
+  - [x] `Action`
+  - [x] `Parameters`
+  - [x] `FixedDelayMs`
+- [x] Create `StepAction` enum:
+  - [x] `Invoke`
+  - [x] `SetValue`
+  - [x] `SelectItem`
+  - [x] `SendKeys`
+- [x] Create `StepParameters` model.
+- [x] Create `UiElementInfo` runtime DTO.
+- [x] Create `ElementLocator` persistence DTO.
+- [x] Create `AncestorDescriptor` model.
+- [x] Create rectangle DTO for persisted bounding rectangles.
+- [x] Create `TestConditions` model.
+- [x] Create `ValueCheck` model.
+- [x] Create expected and forbidden window condition models.
+- [x] Add conversion from `UiElementInfo` to `ElementLocator`.
 
 ## Phase 2 - Target Process Management
 

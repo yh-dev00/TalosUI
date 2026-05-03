@@ -103,6 +103,9 @@
     <Compile Include="..\Src\TalosInspect.cs">
       <Link>TalosInspect.cs</Link>
     </Compile>
+    <Compile Include="..\Src\TalosModels.cs">
+      <Link>TalosModels.cs</Link>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
