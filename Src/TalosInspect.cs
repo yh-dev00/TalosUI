@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Automation;
 using System.Windows.Forms;
 using WindowsPoint = System.Windows.Point;
@@ -20,11 +21,12 @@ namespace TalosCore
     public class UiAutomationService : IUiAutomationService
     {
         private const double BoundingRectangleTolerance = 8.0;
+        private const int NativeUiAutomationNamePropertyId = 30005;
 
         public UiElementInfo GetElementAtPoint(int x, int y)
         {
             AutomationElement element = AutomationElement.FromPoint(new WindowsPoint(x, y));
-            return ToUiElementInfo(element);
+            return ToUiElementInfo(element, x, y);
         }
 
         public List<UiElementInfo> GetTopLevelWindowsForProcess(int processId)
@@ -394,6 +396,11 @@ namespace TalosCore
 
         private UiElementInfo ToUiElementInfo(AutomationElement element)
         {
+            return ToUiElementInfo(element, null, null);
+        }
+
+        private UiElementInfo ToUiElementInfo(AutomationElement element, int? screenX, int? screenY)
+        {
             if (element == null)
             {
                 return null;
@@ -401,7 +408,7 @@ namespace TalosCore
 
             UiElementInfo info = new UiElementInfo();
             info.AutomationId = GetStringProperty(element, AutomationElement.AutomationIdProperty);
-            info.Name = GetStringProperty(element, AutomationElement.NameProperty);
+            info.Name = GetInspectName(element, screenX, screenY);
             info.ControlType = ControlTypeToName(GetControlType(element));
             info.ClassName = GetStringProperty(element, AutomationElement.ClassNameProperty);
             info.ProcessId = GetIntProperty(element, AutomationElement.ProcessIdProperty);
@@ -562,6 +569,119 @@ namespace TalosCore
             return value == AutomationElement.NotSupported || value == null ? string.Empty : value.ToString();
         }
 
+        private string GetInspectName(AutomationElement element, int? screenX, int? screenY)
+        {
+            string nativeName;
+
+            if (screenX.HasValue && screenY.HasValue &&
+                TryGetNativeNameFromPoint(screenX.Value, screenY.Value, out nativeName))
+            {
+                return nativeName;
+            }
+
+            if (TryGetNativeNameFromHandle(element, out nativeName))
+            {
+                return nativeName;
+            }
+
+            return GetStringProperty(element, AutomationElement.NameProperty);
+        }
+
+        private bool TryGetNativeNameFromPoint(int screenX, int screenY, out string name)
+        {
+            name = string.Empty;
+            IUIAutomation automation = null;
+            IUIAutomationElement nativeElement = null;
+
+            try
+            {
+                automation = (IUIAutomation)new CUIAutomation();
+                nativeElement = automation.ElementFromPoint(new NativePoint(screenX, screenY));
+                return TryGetNativeName(nativeElement, out name);
+            }
+            catch (COMException)
+            {
+                return false;
+            }
+            catch (InvalidCastException)
+            {
+                return false;
+            }
+            finally
+            {
+                ReleaseComObject(nativeElement);
+                ReleaseComObject(automation);
+            }
+        }
+
+        private bool TryGetNativeNameFromHandle(AutomationElement element, out string name)
+        {
+            name = string.Empty;
+
+            if (element == null)
+            {
+                return false;
+            }
+
+            int nativeWindowHandle = GetIntProperty(element, AutomationElement.NativeWindowHandleProperty);
+
+            if (nativeWindowHandle == 0)
+            {
+                return false;
+            }
+
+            IUIAutomation automation = null;
+            IUIAutomationElement nativeElement = null;
+
+            try
+            {
+                automation = (IUIAutomation)new CUIAutomation();
+                nativeElement = automation.ElementFromHandle(new IntPtr(nativeWindowHandle));
+                return TryGetNativeName(nativeElement, out name);
+            }
+            catch (COMException)
+            {
+                return false;
+            }
+            catch (InvalidCastException)
+            {
+                return false;
+            }
+            finally
+            {
+                ReleaseComObject(nativeElement);
+                ReleaseComObject(automation);
+            }
+        }
+
+        private bool TryGetNativeName(IUIAutomationElement nativeElement, out string name)
+        {
+            name = string.Empty;
+
+            if (nativeElement == null)
+            {
+                return false;
+            }
+
+            object value = nativeElement.GetCurrentPropertyValueEx(NativeUiAutomationNamePropertyId, true);
+
+            if (value == null || value == DBNull.Value)
+            {
+                return true;
+            }
+
+            name = value.ToString();
+            return true;
+        }
+
+        private void ReleaseComObject(object comObject)
+        {
+            if (comObject != null && Marshal.IsComObject(comObject))
+            {
+                Marshal.ReleaseComObject(comObject);
+            }
+        }
+
         private int GetIntProperty(AutomationElement element, AutomationProperty property)
         {
             object value = element.GetCurrentPropertyValue(property, true);
@@ -637,6 +757,72 @@ namespace TalosCore
             }
 
             return ControlType.Custom;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct NativePoint
+        {
+            public NativePoint(int x, int y)
+            {
+                X = x;
+                Y = y;
+            }
+
+            public int X;
+            public int Y;
+        }
+
+        [ComImport]
+        [Guid("ff48dba4-60ef-4201-aa87-54103eef594e")]
+        private class CUIAutomation
+        {
+        }
+
+        [ComImport]
+        [Guid("30cbe57d-d9d0-452a-ab13-7ac5ac4825ee")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        private interface IUIAutomation
+        {
+            [return: MarshalAs(UnmanagedType.Bool)]
+            bool CompareElements(IUIAutomationElement element1, IUIAutomationElement element2);
+
+            [return: MarshalAs(UnmanagedType.Bool)]
+            bool CompareRuntimeIds(
+                [MarshalAs(UnmanagedType.SafeArray, SafeArraySubType = VarEnum.VT_I4)] int[] runtimeId1,
+                [MarshalAs(UnmanagedType.SafeArray, SafeArraySubType = VarEnum.VT_I4)] int[] runtimeId2);
+
+            IUIAutomationElement GetRootElement();
+
+            IUIAutomationElement ElementFromHandle(IntPtr hwnd);
+
+            IUIAutomationElement ElementFromPoint(NativePoint point);
+        }
+
+        [ComImport]
+        [Guid("d22108aa-8ac5-49a5-837b-37bbb3d7591e")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        private interface IUIAutomationElement
+        {
+            void SetFocus();
+
+            [return: MarshalAs(UnmanagedType.SafeArray, SafeArraySubType = VarEnum.VT_I4)]
+            int[] GetRuntimeId();
+
+            IUIAutomationElement FindFirst(int scope, IntPtr condition);
+
+            IntPtr FindAll(int scope, IntPtr condition);
+
+            IUIAutomationElement FindFirstBuildCache(int scope, IntPtr condition, IntPtr cacheRequest);
+
+            IntPtr FindAllBuildCache(int scope, IntPtr condition, IntPtr cacheRequest);
+
+            IUIAutomationElement BuildUpdatedCache(IntPtr cacheRequest);
+
+            [return: MarshalAs(UnmanagedType.Struct)]
+            object GetCurrentPropertyValue(int propertyId);
+
+            [return: MarshalAs(UnmanagedType.Struct)]
+            object GetCurrentPropertyValueEx(int propertyId, [MarshalAs(UnmanagedType.Bool)] bool ignoreDefaultValue);
         }
     }
 
