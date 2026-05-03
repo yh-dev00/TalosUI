@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media;
 
 namespace TalosCore
 {
@@ -71,15 +72,27 @@ namespace TalosCore
                 return;
             }
 
-            Left = bounds.X;
-            Top = bounds.Y;
-            Width = bounds.Width;
-            Height = bounds.Height;
+            IntPtr hwnd = EnsureWindowHandle();
+            Rect logicalBounds = DevicePixelsToLogicalBounds(bounds);
+
+            Left = logicalBounds.X;
+            Top = logicalBounds.Y;
+            Width = logicalBounds.Width;
+            Height = logicalBounds.Height;
 
             if (!IsVisible)
             {
                 Show();
             }
+
+            SetWindowPos(
+                hwnd,
+                new IntPtr(HWND_TOPMOST),
+                (int)Math.Round(bounds.X),
+                (int)Math.Round(bounds.Y),
+                (int)Math.Round(bounds.Width),
+                (int)Math.Round(bounds.Height),
+                SWP_NOACTIVATE);
 
             Topmost = false;
             Topmost = true;
@@ -91,6 +104,27 @@ namespace TalosCore
             {
                 Hide();
             }
+        }
+
+        private IntPtr EnsureWindowHandle()
+        {
+            WindowInteropHelper helper = new WindowInteropHelper(this);
+            return helper.Handle == IntPtr.Zero ? helper.EnsureHandle() : helper.Handle;
+        }
+
+        private Rect DevicePixelsToLogicalBounds(PersistedRectangle bounds)
+        {
+            Matrix transform = Matrix.Identity;
+            PresentationSource source = PresentationSource.FromVisual(this);
+
+            if (source != null && source.CompositionTarget != null)
+            {
+                transform = source.CompositionTarget.TransformFromDevice;
+            }
+
+            Point topLeft = transform.Transform(new Point(bounds.X, bounds.Y));
+            Point bottomRight = transform.Transform(new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height));
+            return new Rect(topLeft, bottomRight);
         }
     }
 }
