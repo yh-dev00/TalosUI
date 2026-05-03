@@ -1,4 +1,4 @@
-# TalosUI Todo List
+﻿# TalosUI Todo List
 
 This checklist is based on `PRD.md` and the current project state. Use it as a living implementation tracker for the v1 WinForms UI automation tool.
 
@@ -93,15 +93,15 @@ This checklist is based on `PRD.md` and the current project state. Use it as a l
 
 ## Phase 4 - Inspect Mode
 
-- [ ] Add UI state enum: `Idle`, `Inspect`, `Record`, `Running`.
-- [ ] Add start/stop inspect controls in WinForms UI.
-- [ ] Track mouse position during inspect mode.
-- [ ] Add stable hover dwell timer of at least 1 second.
-- [ ] Resolve hovered element through `IUiAutomationService.GetElementAtPoint`.
-- [ ] Display inspected element details in the UI.
-- [ ] Show AutomationId, Name, ControlType, ClassName, ProcessId, BoundingRectangle, and AncestorPath.
-- [ ] Hide stale element details when no valid element is found.
-- [ ] Ensure inspect mode stops cleanly when switching to idle/running states.
+- [x] Add UI state enum: `Idle`, `Inspect`, `Record`, `Running`.
+- [x] Add start/stop inspect controls in WinForms UI.
+- [x] Track mouse position during inspect mode.
+- [x] Add stable hover dwell timer of at least 1 second.
+- [x] Resolve hovered element through `IUiAutomationService.GetElementAtPoint`.
+- [x] Display inspected element details in the UI.
+- [x] Show AutomationId, Name, ControlType, ClassName, ProcessId, BoundingRectangle, and AncestorPath.
+- [x] Hide stale element details when no valid element is found.
+- [x] Ensure inspect mode stops cleanly when switching to idle/running states.
 
 ## Phase 5 - Highlight Overlay
 
