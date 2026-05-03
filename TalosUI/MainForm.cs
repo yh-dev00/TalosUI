@@ -21,6 +21,7 @@ namespace TalosUI
         private Point lastResolvedMousePosition;
         private DateTime mouseStableSinceUtc;
         private UiElementInfo currentHoverElement;
+        private HighlighterWindow highlighterWindow;
 
         public MainForm()
         {
@@ -101,6 +102,7 @@ namespace TalosUI
                 lastResolvedMousePosition = Point.Empty;
                 currentHoverElement = null;
                 ClearInspectedElementDetails();
+                HideHighlightOverlay();
                 return;
             }
 
@@ -119,6 +121,7 @@ namespace TalosUI
         private void ResolveInspectedElement(Point screenPoint)
         {
             UiElementInfo elementFound = null;
+            HideHighlightOverlay();
 
             try
             {
@@ -139,10 +142,12 @@ namespace TalosUI
             if (elementFound == null)
             {
                 ClearInspectedElementDetails();
+                HideHighlightOverlay();
                 return;
             }
 
             DisplayInspectedElementDetails(elementFound);
+            ShowHighlightOverlay(elementFound);
         }
 
         private void SetUiState(TalosUiState newState)
@@ -161,9 +166,34 @@ namespace TalosUI
                 inspectHoverTimer.Stop();
                 currentHoverElement = null;
                 ClearInspectedElementDetails();
+                HideHighlightOverlay();
             }
 
             UpdateUiState();
+        }
+
+        private void ShowHighlightOverlay(UiElementInfo element)
+        {
+            if (element == null || element.BoundingRectangle == null || element.BoundingRectangle.IsEmpty)
+            {
+                HideHighlightOverlay();
+                return;
+            }
+
+            if (highlighterWindow == null)
+            {
+                highlighterWindow = new HighlighterWindow();
+            }
+
+            highlighterWindow.ShowHighlight(element.BoundingRectangle);
+        }
+
+        private void HideHighlightOverlay()
+        {
+            if (highlighterWindow != null)
+            {
+                highlighterWindow.HideHighlight();
+            }
         }
 
         private void UpdateUiState()
@@ -257,6 +287,7 @@ namespace TalosUI
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             SetUiState(TalosUiState.Idle);
+            CloseHighlightOverlay();
 
             if (targetProcessManager != null && targetProcessManager.IsRunning)
             {
@@ -264,6 +295,15 @@ namespace TalosUI
             }
 
             base.OnFormClosing(e);
+        }
+
+        private void CloseHighlightOverlay()
+        {
+            if (highlighterWindow != null)
+            {
+                highlighterWindow.Close();
+                highlighterWindow = null;
+            }
         }
     }
 

@@ -105,13 +105,13 @@ This checklist is based on `PRD.md` and the current project state. Use it as a l
 
 ## Phase 5 - Highlight Overlay
 
-- [ ] Verify existing `HighlighterWindow.xaml` and code-behind build correctly from WinForms project.
-- [ ] Make overlay always on top.
-- [ ] Make overlay click-through.
-- [ ] Draw translucent rectangle over inspected element bounds.
-- [ ] Update overlay position when hovered element changes.
-- [ ] Hide overlay when inspect/record mode stops.
-- [ ] Ensure overlay does not interfere with UIA hit testing.
+- [x] Verify existing `HighlighterWindow.xaml` and code-behind build correctly from WinForms project.
+- [x] Make overlay always on top.
+- [x] Make overlay click-through.
+- [x] Draw translucent rectangle over inspected element bounds.
+- [x] Update overlay position when hovered element changes.
+- [x] Hide overlay when inspect/record mode stops.
+- [x] Ensure overlay does not interfere with UIA hit testing.
 
 ## Phase 6 - Record Mode
 
