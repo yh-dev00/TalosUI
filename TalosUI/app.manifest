@@ -16,6 +16,8 @@
             Remove this element if your application requires this virtualization for backwards
             compatibility.
         -->
+        <!-- PRD v1: start TalosUI as Administrator when elevated targets must be automated.
+             Keep asInvoker to avoid automatic elevation prompts in v1. -->
         <requestedExecutionLevel level="asInvoker" uiAccess="false" />
       </requestedPrivileges>
     </security>

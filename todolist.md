@@ -4,13 +4,13 @@ This checklist is based on `PRD.md` and the current project state. Use it as a l
 
 ## Phase 0 - Project Foundation
 
-- [ ] Confirm Visual Studio 2015 / .NET Framework target compatibility.
-- [ ] Set TalosUI build target to 64-bit as required by the PRD.
-- [ ] Decide whether `Src` remains linked into the WinForms project or becomes a separate class library project.
-- [ ] Add a small README or docs note that TalosUI should be run as Administrator.
-- [ ] Add/update app manifest for administrator execution expectations if desired for v1.
-- [ ] Remove hard-coded sample target path from `MainForm.cs`.
-- [ ] Establish folder structure for core code, UI code, logs, reports, and test assets.
+- [x] Confirm Visual Studio 2015 / .NET Framework target compatibility.
+- [x] Set TalosUI build target to 64-bit as required by the PRD.
+- [x] Decide whether `Src` remains linked into the WinForms project or becomes a separate class library project.
+- [x] Add a small README or docs note that TalosUI should be run as Administrator.
+- [x] Add/update app manifest for administrator execution expectations if desired for v1.
+- [x] Remove hard-coded sample target path from `MainForm.cs`.
+- [x] Establish folder structure for core code, UI code, logs, reports, and test assets.
 
 ## Phase 1 - Core Data Model
 

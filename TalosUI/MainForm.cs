@@ -16,8 +16,7 @@ namespace TalosUI
 {
     public partial class MainForm : Form
     {
-        //private string sTargetPath = "D:\\Self-Learning\\Cpp\\ViCAT_MASTER_TEST\\x64\\Release\\VICAT_MASTER_LT_TEST.exe";
-        private string sTargetPath = "C:\\Program Files (x86)\\ViE Technologies\\Application\\ViCAT-MASTER-LT\\ViCAT-MASTER-LT.exe";
+        private string sTargetPath = string.Empty;
 
         private Process myProcess = null;
         private CTalosCore talos;
@@ -35,7 +34,7 @@ namespace TalosUI
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 sTargetPath = openFileDialog.FileName;
-                //txtTargetPath.Text = sTargetPath;
+                edtTargetPath.Text = sTargetPath;
                 //StartTargetApplication();
             }
         }
