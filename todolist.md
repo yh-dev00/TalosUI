@@ -115,19 +115,19 @@ This checklist is based on `PRD.md` and the current project state. Use it as a l
 
 ## Phase 6 - Record Mode
 
-- [ ] Add start/stop record controls in WinForms UI.
-- [ ] Ensure record mode also performs hover inspection.
-- [ ] Add global left mouse click capture while recording.
-- [ ] Ignore clicks on TalosUI itself.
-- [ ] Resolve clicked element via UI Automation.
-- [ ] Convert clicked `UiElementInfo` to `ElementLocator`.
-- [ ] Create `Step` from click with default action `Invoke`.
-- [ ] Append recorded step to currently selected test case.
-- [ ] Assign sequential unique step ids within each test case.
-- [ ] Display recorded steps in the UI.
-- [ ] Allow editing step order.
-- [ ] Allow editing per-step fixed delay.
-- [ ] Allow manually setting action and parameters for `SetValue`, `SelectItem`, and `SendKeys`.
+- [x] Add start/stop record controls in WinForms UI.
+- [x] Ensure record mode also performs hover inspection.
+- [x] Add global left mouse click capture while recording.
+- [x] Ignore clicks on TalosUI itself.
+- [x] Resolve clicked element via UI Automation.
+- [x] Convert clicked `UiElementInfo` to `ElementLocator`.
+- [x] Create `Step` from click with default action `Invoke`.
+- [x] Append recorded step to currently selected test case.
+- [x] Assign sequential unique step ids within each test case.
+- [x] Display recorded steps in the UI.
+- [x] Allow editing step order.
+- [x] Allow editing per-step fixed delay.
+- [x] Allow manually setting action and parameters for `SetValue`, `SelectItem`, and `SendKeys`.
 
 ## Phase 7 - Suite and Test Case Editing
 
