@@ -32,14 +32,6 @@ namespace TalosUI
         private TestCase currentTestCase;
         private IntPtr mouseHookHandle;
         private bool refreshingStepGrid;
-        private GroupBox grpRecordedSteps;
-        private Label lblCurrentTestCase;
-        private ComboBox cmbTestCases;
-        private Button btnStartRecord;
-        private Button btnStopRecord;
-        private Button btnMoveStepUp;
-        private Button btnMoveStepDown;
-        private DataGridView grdRecordedSteps;
 
         public MainForm()
         {
@@ -56,7 +48,6 @@ namespace TalosUI
             lastMousePosition = Cursor.Position;
             lastResolvedMousePosition = Point.Empty;
             mouseStableSinceUtc = DateTime.UtcNow;
-            InitializeRecordModeUi();
             UpdateUiState();
             ClearInspectedElementDetails();
             RefreshTestCaseList();
@@ -298,154 +289,6 @@ namespace TalosUI
             testCase.Name = "Recorded Test 1";
             suite.Tests.Add(testCase);
             return suite;
-        }
-
-        private void InitializeRecordModeUi()
-        {
-            ClientSize = new Size(1050, 870);
-            MinimumSize = new Size(850, 650);
-
-            btnStartRecord = new Button();
-            btnStartRecord.Location = new Point(528, 80);
-            btnStartRecord.Name = "btnStartRecord";
-            btnStartRecord.Size = new Size(112, 28);
-            btnStartRecord.TabIndex = 10;
-            btnStartRecord.Text = "Start Record";
-            btnStartRecord.UseVisualStyleBackColor = true;
-            btnStartRecord.Click += btnStartRecord_Click;
-            Controls.Add(btnStartRecord);
-
-            btnStopRecord = new Button();
-            btnStopRecord.Location = new Point(648, 80);
-            btnStopRecord.Name = "btnStopRecord";
-            btnStopRecord.Size = new Size(112, 28);
-            btnStopRecord.TabIndex = 11;
-            btnStopRecord.Text = "Stop Record";
-            btnStopRecord.UseVisualStyleBackColor = true;
-            btnStopRecord.Click += btnStopRecord_Click;
-            Controls.Add(btnStopRecord);
-
-            grpRecordedSteps = new GroupBox();
-            grpRecordedSteps.Location = new Point(24, 552);
-            grpRecordedSteps.Name = "grpRecordedSteps";
-            grpRecordedSteps.Size = new Size(1000, 296);
-            grpRecordedSteps.TabIndex = 12;
-            grpRecordedSteps.TabStop = false;
-            grpRecordedSteps.Text = "Recorded Steps";
-            Controls.Add(grpRecordedSteps);
-
-            lblCurrentTestCase = new Label();
-            lblCurrentTestCase.AutoSize = true;
-            lblCurrentTestCase.Location = new Point(16, 28);
-            lblCurrentTestCase.Name = "lblCurrentTestCase";
-            lblCurrentTestCase.Size = new Size(72, 17);
-            lblCurrentTestCase.TabIndex = 0;
-            lblCurrentTestCase.Text = "Test Case";
-            grpRecordedSteps.Controls.Add(lblCurrentTestCase);
-
-            cmbTestCases = new ComboBox();
-            cmbTestCases.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbTestCases.Location = new Point(96, 24);
-            cmbTestCases.Name = "cmbTestCases";
-            cmbTestCases.Size = new Size(264, 24);
-            cmbTestCases.TabIndex = 1;
-            cmbTestCases.SelectedIndexChanged += cmbTestCases_SelectedIndexChanged;
-            grpRecordedSteps.Controls.Add(cmbTestCases);
-
-            btnMoveStepUp = new Button();
-            btnMoveStepUp.Location = new Point(752, 22);
-            btnMoveStepUp.Name = "btnMoveStepUp";
-            btnMoveStepUp.Size = new Size(104, 28);
-            btnMoveStepUp.TabIndex = 2;
-            btnMoveStepUp.Text = "Move Up";
-            btnMoveStepUp.UseVisualStyleBackColor = true;
-            btnMoveStepUp.Click += btnMoveStepUp_Click;
-            grpRecordedSteps.Controls.Add(btnMoveStepUp);
-
-            btnMoveStepDown = new Button();
-            btnMoveStepDown.Location = new Point(864, 22);
-            btnMoveStepDown.Name = "btnMoveStepDown";
-            btnMoveStepDown.Size = new Size(112, 28);
-            btnMoveStepDown.TabIndex = 3;
-            btnMoveStepDown.Text = "Move Down";
-            btnMoveStepDown.UseVisualStyleBackColor = true;
-            btnMoveStepDown.Click += btnMoveStepDown_Click;
-            grpRecordedSteps.Controls.Add(btnMoveStepDown);
-
-            grdRecordedSteps = new DataGridView();
-            grdRecordedSteps.AllowUserToAddRows = false;
-            grdRecordedSteps.AllowUserToDeleteRows = false;
-            grdRecordedSteps.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
-            grdRecordedSteps.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            grdRecordedSteps.Location = new Point(16, 64);
-            grdRecordedSteps.MultiSelect = false;
-            grdRecordedSteps.Name = "grdRecordedSteps";
-            grdRecordedSteps.RowHeadersVisible = false;
-            grdRecordedSteps.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            grdRecordedSteps.Size = new Size(960, 208);
-            grdRecordedSteps.TabIndex = 4;
-            grdRecordedSteps.CellValueChanged += grdRecordedSteps_CellValueChanged;
-            grdRecordedSteps.CurrentCellDirtyStateChanged += grdRecordedSteps_CurrentCellDirtyStateChanged;
-            grdRecordedSteps.CellValidating += grdRecordedSteps_CellValidating;
-            grdRecordedSteps.DataError += grdRecordedSteps_DataError;
-            grpRecordedSteps.Controls.Add(grdRecordedSteps);
-
-            ConfigureRecordedStepsGrid();
-        }
-
-        private void ConfigureRecordedStepsGrid()
-        {
-            DataGridViewTextBoxColumn idColumn = new DataGridViewTextBoxColumn();
-            idColumn.Name = "Id";
-            idColumn.HeaderText = "Id";
-            idColumn.ReadOnly = true;
-            idColumn.Width = 42;
-            grdRecordedSteps.Columns.Add(idColumn);
-
-            DataGridViewComboBoxColumn actionColumn = new DataGridViewComboBoxColumn();
-            actionColumn.Name = "Action";
-            actionColumn.HeaderText = "Action";
-            actionColumn.Width = 96;
-            actionColumn.DataSource = Enum.GetNames(typeof(StepAction));
-            grdRecordedSteps.Columns.Add(actionColumn);
-
-            DataGridViewTextBoxColumn targetColumn = new DataGridViewTextBoxColumn();
-            targetColumn.Name = "Target";
-            targetColumn.HeaderText = "Target";
-            targetColumn.ReadOnly = true;
-            targetColumn.Width = 210;
-            grdRecordedSteps.Columns.Add(targetColumn);
-
-            DataGridViewTextBoxColumn controlTypeColumn = new DataGridViewTextBoxColumn();
-            controlTypeColumn.Name = "ControlType";
-            controlTypeColumn.HeaderText = "Control";
-            controlTypeColumn.ReadOnly = true;
-            controlTypeColumn.Width = 90;
-            grdRecordedSteps.Columns.Add(controlTypeColumn);
-
-            DataGridViewTextBoxColumn delayColumn = new DataGridViewTextBoxColumn();
-            delayColumn.Name = "FixedDelayMs";
-            delayColumn.HeaderText = "Delay ms";
-            delayColumn.Width = 76;
-            grdRecordedSteps.Columns.Add(delayColumn);
-
-            DataGridViewTextBoxColumn textColumn = new DataGridViewTextBoxColumn();
-            textColumn.Name = "Text";
-            textColumn.HeaderText = "SetValue Text";
-            textColumn.Width = 130;
-            grdRecordedSteps.Columns.Add(textColumn);
-
-            DataGridViewTextBoxColumn sendKeysColumn = new DataGridViewTextBoxColumn();
-            sendKeysColumn.Name = "SendKeysText";
-            sendKeysColumn.HeaderText = "SendKeys";
-            sendKeysColumn.Width = 120;
-            grdRecordedSteps.Columns.Add(sendKeysColumn);
-
-            DataGridViewTextBoxColumn selectedItemColumn = new DataGridViewTextBoxColumn();
-            selectedItemColumn.Name = "SelectedItem";
-            selectedItemColumn.HeaderText = "Selected Item";
-            selectedItemColumn.Width = 136;
-            grdRecordedSteps.Columns.Add(selectedItemColumn);
         }
 
         private void RefreshTestCaseList()
