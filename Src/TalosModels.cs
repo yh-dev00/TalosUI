@@ -87,6 +87,7 @@ namespace TalosCore
     {
         public UiElementInfo()
         {
+            HowFound = string.Empty;
             AutomationId = string.Empty;
             Name = string.Empty;
             ControlType = string.Empty;
@@ -97,6 +98,7 @@ namespace TalosCore
             AncestorPath = new List<AncestorDescriptor>();
         }
 
+        public string HowFound { get; set; }
         public string AutomationId { get; set; }
         public string Name { get; set; }
         public string ControlType { get; set; }

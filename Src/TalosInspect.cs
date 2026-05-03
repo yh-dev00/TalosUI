@@ -407,6 +407,7 @@ namespace TalosCore
             }
 
             UiElementInfo info = new UiElementInfo();
+            info.HowFound = FormatHowFound(screenX, screenY);
             info.AutomationId = GetStringProperty(element, AutomationElement.AutomationIdProperty);
             info.Name = GetInspectName(element, screenX, screenY);
             info.ControlType = ControlTypeToName(GetControlType(element));
@@ -416,6 +417,16 @@ namespace TalosCore
             info.BoundingRectangle = ToPersistedRectangle(GetBoundingRectangle(element));
             info.AncestorPath = BuildAncestorPath(element);
             return info;
+        }
+
+        private string FormatHowFound(int? screenX, int? screenY)
+        {
+            if (!screenX.HasValue || !screenY.HasValue)
+            {
+                return string.Empty;
+            }
+
+            return string.Format("Mouse move ({0},{1})", screenX.Value, screenY.Value);
         }
 
         private List<AncestorDescriptor> BuildAncestorPath(AutomationElement element)

@@ -206,6 +206,7 @@ namespace TalosUI
 
         private void ClearInspectedElementDetails()
         {
+            txtHowFound.Text = string.Empty;
             txtAutomationId.Text = string.Empty;
             txtElementName.Text = string.Empty;
             txtControlType.Text = string.Empty;
@@ -217,6 +218,7 @@ namespace TalosUI
 
         private void DisplayInspectedElementDetails(UiElementInfo element)
         {
+            txtHowFound.Text = element.HowFound ?? string.Empty;
             txtAutomationId.Text = element.AutomationId ?? string.Empty;
             txtElementName.Text = element.Name ?? string.Empty;
             txtControlType.Text = element.ControlType ?? string.Empty;

@@ -48,6 +48,8 @@
             this.lblUiState = new System.Windows.Forms.Label();
             this.lblUiStateValue = new System.Windows.Forms.Label();
             this.grpInspectedElement = new System.Windows.Forms.GroupBox();
+            this.txtHowFound = new System.Windows.Forms.TextBox();
+            this.lblHowFound = new System.Windows.Forms.Label();
             this.txtAncestorPath = new System.Windows.Forms.TextBox();
             this.lblAncestorPath = new System.Windows.Forms.Label();
             this.txtBoundingRectangle = new System.Windows.Forms.TextBox();
@@ -213,6 +215,8 @@
             //
             // grpInspectedElement
             //
+            this.grpInspectedElement.Controls.Add(this.txtHowFound);
+            this.grpInspectedElement.Controls.Add(this.lblHowFound);
             this.grpInspectedElement.Controls.Add(this.txtAncestorPath);
             this.grpInspectedElement.Controls.Add(this.lblAncestorPath);
             this.grpInspectedElement.Controls.Add(this.txtBoundingRectangle);
@@ -229,137 +233,154 @@
             this.grpInspectedElement.Controls.Add(this.lblAutomationId);
             this.grpInspectedElement.Location = new System.Drawing.Point(24, 152);
             this.grpInspectedElement.Name = "grpInspectedElement";
-            this.grpInspectedElement.Size = new System.Drawing.Size(616, 360);
+            this.grpInspectedElement.Size = new System.Drawing.Size(616, 392);
             this.grpInspectedElement.TabIndex = 9;
             this.grpInspectedElement.TabStop = false;
             this.grpInspectedElement.Text = "Inspected Element";
             //
+            // txtHowFound
+            //
+            this.txtHowFound.Location = new System.Drawing.Point(144, 32);
+            this.txtHowFound.Name = "txtHowFound";
+            this.txtHowFound.ReadOnly = true;
+            this.txtHowFound.Size = new System.Drawing.Size(448, 22);
+            this.txtHowFound.TabIndex = 1;
+            //
+            // lblHowFound
+            //
+            this.lblHowFound.AutoSize = true;
+            this.lblHowFound.Location = new System.Drawing.Point(16, 32);
+            this.lblHowFound.Name = "lblHowFound";
+            this.lblHowFound.Size = new System.Drawing.Size(76, 17);
+            this.lblHowFound.TabIndex = 0;
+            this.lblHowFound.Text = "How found";
+            //
             // txtAncestorPath
             //
-            this.txtAncestorPath.Location = new System.Drawing.Point(144, 224);
+            this.txtAncestorPath.Location = new System.Drawing.Point(144, 256);
             this.txtAncestorPath.Multiline = true;
             this.txtAncestorPath.Name = "txtAncestorPath";
             this.txtAncestorPath.ReadOnly = true;
             this.txtAncestorPath.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtAncestorPath.Size = new System.Drawing.Size(448, 112);
-            this.txtAncestorPath.TabIndex = 13;
+            this.txtAncestorPath.TabIndex = 15;
             //
             // lblAncestorPath
             //
             this.lblAncestorPath.AutoSize = true;
-            this.lblAncestorPath.Location = new System.Drawing.Point(16, 224);
+            this.lblAncestorPath.Location = new System.Drawing.Point(16, 256);
             this.lblAncestorPath.Name = "lblAncestorPath";
             this.lblAncestorPath.Size = new System.Drawing.Size(95, 17);
-            this.lblAncestorPath.TabIndex = 12;
+            this.lblAncestorPath.TabIndex = 14;
             this.lblAncestorPath.Text = "AncestorPath";
             //
             // txtBoundingRectangle
             //
-            this.txtBoundingRectangle.Location = new System.Drawing.Point(144, 192);
+            this.txtBoundingRectangle.Location = new System.Drawing.Point(144, 224);
             this.txtBoundingRectangle.Name = "txtBoundingRectangle";
             this.txtBoundingRectangle.ReadOnly = true;
             this.txtBoundingRectangle.Size = new System.Drawing.Size(448, 22);
-            this.txtBoundingRectangle.TabIndex = 11;
+            this.txtBoundingRectangle.TabIndex = 13;
             //
             // lblBoundingRectangle
             //
             this.lblBoundingRectangle.AutoSize = true;
-            this.lblBoundingRectangle.Location = new System.Drawing.Point(16, 192);
+            this.lblBoundingRectangle.Location = new System.Drawing.Point(16, 224);
             this.lblBoundingRectangle.Name = "lblBoundingRectangle";
             this.lblBoundingRectangle.Size = new System.Drawing.Size(128, 17);
-            this.lblBoundingRectangle.TabIndex = 10;
+            this.lblBoundingRectangle.TabIndex = 12;
             this.lblBoundingRectangle.Text = "BoundingRectangle";
             //
             // txtProcessId
             //
-            this.txtProcessId.Location = new System.Drawing.Point(144, 160);
+            this.txtProcessId.Location = new System.Drawing.Point(144, 192);
             this.txtProcessId.Name = "txtProcessId";
             this.txtProcessId.ReadOnly = true;
             this.txtProcessId.Size = new System.Drawing.Size(448, 22);
-            this.txtProcessId.TabIndex = 9;
+            this.txtProcessId.TabIndex = 11;
             //
             // lblProcessId
             //
             this.lblProcessId.AutoSize = true;
-            this.lblProcessId.Location = new System.Drawing.Point(16, 160);
+            this.lblProcessId.Location = new System.Drawing.Point(16, 192);
             this.lblProcessId.Name = "lblProcessId";
             this.lblProcessId.Size = new System.Drawing.Size(72, 17);
-            this.lblProcessId.TabIndex = 8;
+            this.lblProcessId.TabIndex = 10;
             this.lblProcessId.Text = "ProcessId";
             //
             // txtClassName
             //
-            this.txtClassName.Location = new System.Drawing.Point(144, 128);
+            this.txtClassName.Location = new System.Drawing.Point(144, 160);
             this.txtClassName.Name = "txtClassName";
             this.txtClassName.ReadOnly = true;
             this.txtClassName.Size = new System.Drawing.Size(448, 22);
-            this.txtClassName.TabIndex = 7;
+            this.txtClassName.TabIndex = 9;
             //
             // lblClassName
             //
             this.lblClassName.AutoSize = true;
-            this.lblClassName.Location = new System.Drawing.Point(16, 128);
+            this.lblClassName.Location = new System.Drawing.Point(16, 160);
             this.lblClassName.Name = "lblClassName";
             this.lblClassName.Size = new System.Drawing.Size(77, 17);
-            this.lblClassName.TabIndex = 6;
+            this.lblClassName.TabIndex = 8;
             this.lblClassName.Text = "ClassName";
             //
             // txtControlType
             //
-            this.txtControlType.Location = new System.Drawing.Point(144, 96);
+            this.txtControlType.Location = new System.Drawing.Point(144, 128);
             this.txtControlType.Name = "txtControlType";
             this.txtControlType.ReadOnly = true;
             this.txtControlType.Size = new System.Drawing.Size(448, 22);
-            this.txtControlType.TabIndex = 5;
+            this.txtControlType.TabIndex = 7;
             //
             // lblControlType
             //
             this.lblControlType.AutoSize = true;
-            this.lblControlType.Location = new System.Drawing.Point(16, 96);
+            this.lblControlType.Location = new System.Drawing.Point(16, 128);
             this.lblControlType.Name = "lblControlType";
             this.lblControlType.Size = new System.Drawing.Size(84, 17);
-            this.lblControlType.TabIndex = 4;
+            this.lblControlType.TabIndex = 6;
             this.lblControlType.Text = "ControlType";
             //
             // txtElementName
             //
-            this.txtElementName.Location = new System.Drawing.Point(144, 64);
+            this.txtElementName.Location = new System.Drawing.Point(144, 96);
             this.txtElementName.Name = "txtElementName";
             this.txtElementName.ReadOnly = true;
             this.txtElementName.Size = new System.Drawing.Size(448, 22);
-            this.txtElementName.TabIndex = 3;
+            this.txtElementName.TabIndex = 5;
             //
             // lblElementName
             //
             this.lblElementName.AutoSize = true;
-            this.lblElementName.Location = new System.Drawing.Point(16, 64);
+            this.lblElementName.Location = new System.Drawing.Point(16, 96);
             this.lblElementName.Name = "lblElementName";
             this.lblElementName.Size = new System.Drawing.Size(45, 17);
-            this.lblElementName.TabIndex = 2;
+            this.lblElementName.TabIndex = 4;
             this.lblElementName.Text = "Name";
             //
             // txtAutomationId
             //
-            this.txtAutomationId.Location = new System.Drawing.Point(144, 32);
+            this.txtAutomationId.Location = new System.Drawing.Point(144, 64);
             this.txtAutomationId.Name = "txtAutomationId";
             this.txtAutomationId.ReadOnly = true;
             this.txtAutomationId.Size = new System.Drawing.Size(448, 22);
-            this.txtAutomationId.TabIndex = 1;
+            this.txtAutomationId.TabIndex = 3;
             //
             // lblAutomationId
             //
             this.lblAutomationId.AutoSize = true;
-            this.lblAutomationId.Location = new System.Drawing.Point(16, 32);
+            this.lblAutomationId.Location = new System.Drawing.Point(16, 64);
             this.lblAutomationId.Name = "lblAutomationId";
             this.lblAutomationId.Size = new System.Drawing.Size(92, 17);
-            this.lblAutomationId.TabIndex = 0;
+            this.lblAutomationId.TabIndex = 2;
             this.lblAutomationId.Text = "AutomationId";
             //
             // MainForm
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(664, 535);
+            this.ClientSize = new System.Drawing.Size(664, 567);
             this.Controls.Add(this.grpInspectedElement);
             this.Controls.Add(this.lblUiStateValue);
             this.Controls.Add(this.lblUiState);
@@ -401,6 +422,8 @@
         private System.Windows.Forms.Label lblUiState;
         private System.Windows.Forms.Label lblUiStateValue;
         private System.Windows.Forms.GroupBox grpInspectedElement;
+        private System.Windows.Forms.TextBox txtHowFound;
+        private System.Windows.Forms.Label lblHowFound;
         private System.Windows.Forms.TextBox txtAutomationId;
         private System.Windows.Forms.Label lblAutomationId;
         private System.Windows.Forms.TextBox txtAncestorPath;
