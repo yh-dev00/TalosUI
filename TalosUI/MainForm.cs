@@ -49,7 +49,7 @@ namespace TalosUI
             currentSuite = CreateDefaultSuite();
             currentTestCase = currentSuite.Tests[0];
             mouseHookCallback = MouseHookProc;
-            inspectHoverTimer = new Timer(components);
+            inspectHoverTimer = new Timer();
             inspectHoverTimer.Interval = InspectPollIntervalMs;
             inspectHoverTimer.Tick += inspectHoverTimer_Tick;
             currentState = TalosUiState.Idle;
