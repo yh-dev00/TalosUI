@@ -53,14 +53,14 @@ This checklist is based on `PRD.md` and the current project state. Use it as a l
 
 ## Phase 2 - Target Process Management
 
-- [ ] Define `ITargetProcessManager`.
-- [ ] Implement target process launch with optional arguments.
-- [ ] Implement running/crash detection.
-- [ ] Implement process id retrieval.
-- [ ] Implement graceful close.
-- [ ] Implement forced kill fallback after graceful close timeout.
-- [ ] Implement relaunch support for `AutoRelaunchBetweenTests`.
-- [ ] Surface clear errors when target path is missing or invalid.
+- [x] Define `ITargetProcessManager`.
+- [x] Implement target process launch with optional arguments.
+- [x] Implement running/crash detection.
+- [x] Implement process id retrieval.
+- [x] Implement graceful close.
+- [x] Implement forced kill fallback after graceful close timeout.
+- [x] Implement relaunch support for `AutoRelaunchBetweenTests`.
+- [x] Surface clear errors when target path is missing or invalid.
 
 ## Phase 3 - UI Automation Service
 

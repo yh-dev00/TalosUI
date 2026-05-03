@@ -1,28 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Diagnostics;
-
-using TalosCore;
-using System.Threading;
 using System.Windows.Automation;
+using TalosCore;
+
 namespace TalosUI
 {
     public partial class MainForm : Form
     {
+        private const int GracefulCloseTimeoutMs = 5000;
         private string sTargetPath = string.Empty;
 
-        private Process myProcess = null;
-        private CTalosCore talos;
+        private readonly ITargetProcessManager targetProcessManager;
         public MainForm()
         {
             InitializeComponent();
+            targetProcessManager = new TargetProcessManager();
         }
 
         private void btnSelectTarget_Click(object sender, EventArgs e)
@@ -35,18 +27,45 @@ namespace TalosUI
             {
                 sTargetPath = openFileDialog.FileName;
                 edtTargetPath.Text = sTargetPath;
-                //StartTargetApplication();
             }
         }
 
         private void btnRecord_Click(object sender, EventArgs e)
         {
-           
+            sTargetPath = edtTargetPath.Text;
+
+            try
+            {
+                targetProcessManager.EnsureRunning(sTargetPath, string.Empty);
+                MessageBox.Show(
+                    "Target application is running. Process Id: " + targetProcessManager.ProcessId,
+                    "TalosUI",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    ex.Message,
+                    "Target launch failed",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
 
         private void OnHoveredElementChanged(AutomationElement elementFound)
         {
           
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (targetProcessManager != null && targetProcessManager.IsRunning)
+            {
+                targetProcessManager.Close(GracefulCloseTimeoutMs);
+            }
+
+            base.OnFormClosing(e);
         }
     }
 }

@@ -148,7 +148,7 @@
             this.btnRecord.Name = "btnRecord";
             this.btnRecord.Size = new System.Drawing.Size(360, 24);
             this.btnRecord.TabIndex = 4;
-            this.btnRecord.Text = "Record";
+            this.btnRecord.Text = "Launch Target";
             this.btnRecord.UseVisualStyleBackColor = true;
             this.btnRecord.Click += new System.EventHandler(this.btnRecord_Click);
             // 
