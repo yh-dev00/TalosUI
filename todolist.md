@@ -64,32 +64,32 @@ This checklist is based on `PRD.md` and the current project state. Use it as a l
 
 ## Phase 3 - UI Automation Service
 
-- [ ] Define `IUiAutomationService`.
-- [ ] Implement `GetElementAtPoint(x, y)` using UI Automation hit testing.
-- [ ] Convert `AutomationElement` into `UiElementInfo`.
-- [ ] Capture key UIA properties:
-  - [ ] `AutomationId`
-  - [ ] `Name`
-  - [ ] `ControlType`
-  - [ ] `ClassName`
-  - [ ] `ProcessId`
-  - [ ] `NativeWindowHandle`
-  - [ ] `BoundingRectangle`
-  - [ ] `AncestorPath`
-- [ ] Implement `GetTopLevelWindowsForProcess(processId)`.
-- [ ] Implement `FindElement(locator)` with scoped root lookup.
-- [ ] Implement Tier 1 lookup by `AutomationId`.
-- [ ] Implement Tier 2 lookup by `ControlType + Name` under resolved parent.
-- [ ] Implement Tier 3 lookup by `AncestorPath`.
-- [ ] Implement Tier 4 fallback by bounding rectangle center hit test.
-- [ ] Implement tolerance comparison for bounding rectangle fallback.
-- [ ] Implement `PerformAction(element, action, text)`.
-- [ ] Implement `Invoke` via `InvokePattern`.
-- [ ] Implement `SetValue` via `ValuePattern`.
-- [ ] Implement `SelectItem` via `SelectionItemPattern`.
-- [ ] Implement minimal `SendKeys` support.
-- [ ] Implement `GetElementValue(element)` via `ValuePattern` with `Name` fallback.
-- [ ] Keep all direct UIA types inside the UI automation service boundary where practical.
+- [x] Define `IUiAutomationService`.
+- [x] Implement `GetElementAtPoint(x, y)` using UI Automation hit testing.
+- [x] Convert `AutomationElement` into `UiElementInfo`.
+- [x] Capture key UIA properties:
+  - [x] `AutomationId`
+  - [x] `Name`
+  - [x] `ControlType`
+  - [x] `ClassName`
+  - [x] `ProcessId`
+  - [x] `NativeWindowHandle`
+  - [x] `BoundingRectangle`
+  - [x] `AncestorPath`
+- [x] Implement `GetTopLevelWindowsForProcess(processId)`.
+- [x] Implement `FindElement(locator)` with scoped root lookup.
+- [x] Implement Tier 1 lookup by `AutomationId`.
+- [x] Implement Tier 2 lookup by `ControlType + Name` under resolved parent.
+- [x] Implement Tier 3 lookup by `AncestorPath`.
+- [x] Implement Tier 4 fallback by bounding rectangle center hit test.
+- [x] Implement tolerance comparison for bounding rectangle fallback.
+- [x] Implement `PerformAction(element, action, text)`.
+- [x] Implement `Invoke` via `InvokePattern`.
+- [x] Implement `SetValue` via `ValuePattern`.
+- [x] Implement `SelectItem` via `SelectionItemPattern`.
+- [x] Implement minimal `SendKeys` support.
+- [x] Implement `GetElementValue(element)` via `ValuePattern` with `Name` fallback.
+- [x] Keep all direct UIA types inside the UI automation service boundary where practical.
 
 ## Phase 4 - Inspect Mode
 
