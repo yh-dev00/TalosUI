@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace TalosCore
 {
@@ -19,6 +20,12 @@ namespace TalosCore
         private const int WS_EX_TRANSPARENT = 0x00000020;
         private const int WS_EX_TOOLWINDOW = 0x00000080;
         private const int WS_EX_NOACTIVATE = 0x08000000;
+        private static readonly Color NormalHighlightColor = Color.FromRgb(255, 212, 0);
+        private static readonly Color InvokedHighlightColor = Color.FromRgb(255, 0, 0);
+        private const double NormalFillOpacity = 0.18;
+        private const double InvokedFillOpacity = 0.24;
+
+        private readonly DispatcherTimer invokedFeedbackTimer;
 
         [DllImport("user32.dll")]
         private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
@@ -41,6 +48,10 @@ namespace TalosCore
             InitializeComponent();
             ShowActivated = false;
             Topmost = true;
+            invokedFeedbackTimer = new DispatcherTimer();
+            invokedFeedbackTimer.Interval = TimeSpan.FromMilliseconds(200);
+            invokedFeedbackTimer.Tick += invokedFeedbackTimer_Tick;
+            ApplyHighlightAppearance(NormalHighlightColor, NormalFillOpacity);
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -98,12 +109,40 @@ namespace TalosCore
             Topmost = true;
         }
 
+        public void ShowInvokedFeedback(PersistedRectangle bounds)
+        {
+            if (bounds == null || bounds.IsEmpty)
+            {
+                return;
+            }
+
+            ShowHighlight(bounds);
+            ApplyHighlightAppearance(InvokedHighlightColor, InvokedFillOpacity);
+            invokedFeedbackTimer.Stop();
+            invokedFeedbackTimer.Start();
+        }
+
         public void HideHighlight()
         {
+            invokedFeedbackTimer.Stop();
+            ApplyHighlightAppearance(NormalHighlightColor, NormalFillOpacity);
+
             if (IsVisible)
             {
                 Hide();
             }
+        }
+
+        private void invokedFeedbackTimer_Tick(object sender, EventArgs e)
+        {
+            invokedFeedbackTimer.Stop();
+            ApplyHighlightAppearance(NormalHighlightColor, NormalFillOpacity);
+        }
+
+        private void ApplyHighlightAppearance(Color color, double fillOpacity)
+        {
+            HighlightBorder.BorderBrush = new SolidColorBrush(color);
+            HighlightBorder.Background = new SolidColorBrush(color) { Opacity = fillOpacity };
         }
 
         private IntPtr EnsureWindowHandle()

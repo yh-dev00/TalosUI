@@ -430,8 +430,12 @@ namespace TalosUI
                 return;
             }
 
+            lastMousePosition = screenPoint;
+            lastResolvedMousePosition = screenPoint;
+            mouseStableSinceUtc = DateTime.UtcNow;
             OnHoveredElementChanged(clickedElement);
             AppendRecordedStep(clickedElement);
+            ShowInvokedHighlightFeedback(clickedElement);
         }
 
         private void AppendRecordedStep(UiElementInfo element)
@@ -569,6 +573,21 @@ namespace TalosUI
             }
 
             highlighterWindow.ShowHighlight(element.BoundingRectangle);
+        }
+
+        private void ShowInvokedHighlightFeedback(UiElementInfo element)
+        {
+            if (element == null || element.BoundingRectangle == null || element.BoundingRectangle.IsEmpty)
+            {
+                return;
+            }
+
+            if (highlighterWindow == null)
+            {
+                highlighterWindow = new HighlighterWindow();
+            }
+
+            highlighterWindow.ShowInvokedFeedback(element.BoundingRectangle);
         }
 
         private void HideHighlightOverlay()
