@@ -414,18 +414,17 @@ namespace TalosUI
                 return;
             }
 
-            UiElementInfo clickedElement = null;
+            UiElementInfo hoveredElement = currentHoverElement;
+            HideHighlightOverlay();
 
-            try
+            UiElementInfo clickedElement = GetElementAtPointOrNull(screenPoint);
+
+            if (!IsRecordableElement(clickedElement))
             {
-                clickedElement = uiAutomationService.GetElementAtPoint(screenPoint.X, screenPoint.Y);
-            }
-            catch (Exception)
-            {
-                clickedElement = null;
+                clickedElement = GetHoveredElementRecordingFallback(hoveredElement, screenPoint);
             }
 
-            if (clickedElement == null || clickedElement.ProcessId == Process.GetCurrentProcess().Id)
+            if (!IsRecordableElement(clickedElement))
             {
                 return;
             }
@@ -436,6 +435,47 @@ namespace TalosUI
             OnHoveredElementChanged(clickedElement);
             AppendRecordedStep(clickedElement);
             ShowInvokedHighlightFeedback(clickedElement);
+        }
+
+        private UiElementInfo GetElementAtPointOrNull(Point screenPoint)
+        {
+            try
+            {
+                return uiAutomationService.GetElementAtPoint(screenPoint.X, screenPoint.Y);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private UiElementInfo GetHoveredElementRecordingFallback(UiElementInfo hoveredElement, Point screenPoint)
+        {
+            if (!IsRecordableElement(hoveredElement) || !ElementBoundsContainPoint(hoveredElement, screenPoint))
+            {
+                return null;
+            }
+
+            return hoveredElement;
+        }
+
+        private bool IsRecordableElement(UiElementInfo element)
+        {
+            return element != null && element.ProcessId != Process.GetCurrentProcess().Id;
+        }
+
+        private bool ElementBoundsContainPoint(UiElementInfo element, Point screenPoint)
+        {
+            if (element == null || element.BoundingRectangle == null || element.BoundingRectangle.IsEmpty)
+            {
+                return false;
+            }
+
+            PersistedRectangle bounds = element.BoundingRectangle;
+            return screenPoint.X >= bounds.X &&
+                screenPoint.X <= bounds.X + bounds.Width &&
+                screenPoint.Y >= bounds.Y &&
+                screenPoint.Y <= bounds.Y + bounds.Height;
         }
 
         private void AppendRecordedStep(UiElementInfo element)
