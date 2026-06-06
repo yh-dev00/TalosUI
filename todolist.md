@@ -186,14 +186,14 @@ This checklist is based on `PRD.md` and the current project state. Use it as a l
 
 ## Phase 10 - Conditions
 
-- [ ] Implement value comparison logic.
-- [ ] Support simple exact string matching for v1 value checks.
-- [ ] Implement expected window detection.
-- [ ] Implement forbidden window detection.
-- [ ] Support simple substring window patterns.
-- [ ] Add optional regex support for window patterns if practical.
-- [ ] Track whether expected windows appeared during the test or only exist at the end.
-- [ ] Produce clear failure reasons for condition failures.
+- [x] Implement value comparison logic.
+- [x] Support simple exact string matching for v1 value checks.
+- [x] Implement expected window detection.
+- [x] Implement forbidden window detection.
+- [x] Support simple substring window patterns.
+- [x] Add optional regex support for window patterns if practical.
+- [x] Track whether expected windows appeared during the test or only exist at the end.
+- [x] Produce clear failure reasons for condition failures.
 
 ## Phase 11 - Logging and Artifacts (`CTalosLog`)
 

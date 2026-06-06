@@ -394,13 +394,21 @@ namespace TalosCore
 
             foreach (ForbiddenWindowCondition condition in SafeForbiddenWindows(testCase))
             {
+                string validationFailure = ValidateWindowCondition(condition);
+
+                if (!string.IsNullOrEmpty(validationFailure))
+                {
+                    return validationFailure;
+                }
+
                 string matchError;
 
                 foreach (UiElementInfo window in windows)
                 {
                     if (MatchesWindowCondition(window, condition, out matchError))
                     {
-                        return "Forbidden window '" + condition.Pattern + "' was found.";
+                        return "Forbidden window condition '" + FormatConditionName(condition) +
+                            "' matched window '" + FormatWindowName(window) + "'.";
                     }
 
                     if (!string.IsNullOrEmpty(matchError))
@@ -419,6 +427,13 @@ namespace TalosCore
 
             foreach (ExpectedWindowCondition condition in SafeExpectedWindows(testCase))
             {
+                string validationFailure = ValidateWindowCondition(condition);
+
+                if (!string.IsNullOrEmpty(validationFailure))
+                {
+                    return validationFailure;
+                }
+
                 if (condition.MustAppearAtLeastOnce && expectedWindowsSeen.Contains(GetConditionKey(condition)))
                 {
                     continue;
@@ -443,7 +458,9 @@ namespace TalosCore
 
                 if (!found)
                 {
-                    return "Expected window '" + condition.Pattern + "' was not found.";
+                    return condition.MustAppearAtLeastOnce
+                        ? "Expected window condition '" + FormatConditionName(condition) + "' did not appear during the test."
+                        : "Expected window condition '" + FormatConditionName(condition) + "' was not found at the end of the test.";
                 }
             }
 
@@ -504,6 +521,29 @@ namespace TalosCore
             return searchableText.IndexOf(condition.Pattern, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
+        private string ValidateWindowCondition(WindowConditionBase condition)
+        {
+            if (condition == null || string.IsNullOrWhiteSpace(condition.Pattern))
+            {
+                return string.Empty;
+            }
+
+            if (condition.MatchType != WindowPatternMatchType.Regex)
+            {
+                return string.Empty;
+            }
+
+            try
+            {
+                Regex.Match(string.Empty, condition.Pattern);
+                return string.Empty;
+            }
+            catch (ArgumentException ex)
+            {
+                return "Window condition '" + FormatConditionName(condition) + "' has an invalid regex: " + ex.Message;
+            }
+        }
+
         private string BuildWindowSearchText(UiElementInfo window)
         {
             return string.Join(
@@ -515,6 +555,46 @@ namespace TalosCore
                     window.ClassName ?? string.Empty,
                     window.ControlType ?? string.Empty
                 });
+        }
+
+        private string FormatConditionName(WindowConditionBase condition)
+        {
+            if (condition == null)
+            {
+                return string.Empty;
+            }
+
+            if (!string.IsNullOrWhiteSpace(condition.Id))
+            {
+                return condition.Id + " (" + condition.Pattern + ")";
+            }
+
+            return condition.Pattern ?? string.Empty;
+        }
+
+        private string FormatWindowName(UiElementInfo window)
+        {
+            if (window == null)
+            {
+                return string.Empty;
+            }
+
+            if (!string.IsNullOrWhiteSpace(window.Name))
+            {
+                return window.Name;
+            }
+
+            if (!string.IsNullOrWhiteSpace(window.AutomationId))
+            {
+                return window.AutomationId;
+            }
+
+            if (!string.IsNullOrWhiteSpace(window.ClassName))
+            {
+                return window.ClassName;
+            }
+
+            return window.ControlType ?? string.Empty;
         }
 
         private TestCaseRunResult FailTest(TestCaseRunResult testResult, StepRunResult stepResult, string reason)
