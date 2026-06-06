@@ -118,6 +118,27 @@
             this.ForbiddenWindowId = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ForbiddenPattern = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ForbiddenMatchType = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.btnRunSelectedTest = new System.Windows.Forms.Button();
+            this.btnRunAllTests = new System.Windows.Forms.Button();
+            this.btnStopRun = new System.Windows.Forms.Button();
+            this.lblRunStatus = new System.Windows.Forms.Label();
+            this.txtRunStatus = new System.Windows.Forms.TextBox();
+            this.grpRunResults = new System.Windows.Forms.GroupBox();
+            this.txtRunReportPath = new System.Windows.Forms.TextBox();
+            this.lblRunReportPath = new System.Windows.Forms.Label();
+            this.lblRunSteps = new System.Windows.Forms.Label();
+            this.lblRunTests = new System.Windows.Forms.Label();
+            this.grdRunSteps = new System.Windows.Forms.DataGridView();
+            this.RunStepId = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RunStepAction = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RunStepStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RunStepMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RunStepScreenshot = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.grdRunTests = new System.Windows.Forms.DataGridView();
+            this.RunTestName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RunTestStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RunTestFailure = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RunTestScreenshot = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.toolStrip1.SuspendLayout();
             this.grpInspectedElement.SuspendLayout();
             this.grpRecordedSteps.SuspendLayout();
@@ -127,6 +148,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.grdValueChecks)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.grdExpectedWindows)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.grdForbiddenWindows)).BeginInit();
+            this.grpRunResults.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grdRunSteps)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.grdRunTests)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -276,6 +300,53 @@
             this.lblUiStateValue.Size = new System.Drawing.Size(30, 17);
             this.lblUiStateValue.TabIndex = 8;
             this.lblUiStateValue.Text = "Idle";
+            // 
+            // btnRunSelectedTest
+            // 
+            this.btnRunSelectedTest.Location = new System.Drawing.Point(224, 116);
+            this.btnRunSelectedTest.Name = "btnRunSelectedTest";
+            this.btnRunSelectedTest.Size = new System.Drawing.Size(128, 28);
+            this.btnRunSelectedTest.TabIndex = 22;
+            this.btnRunSelectedTest.Text = "Run Selected";
+            this.btnRunSelectedTest.UseVisualStyleBackColor = true;
+            this.btnRunSelectedTest.Click += new System.EventHandler(this.btnRunSelectedTest_Click);
+            // 
+            // btnRunAllTests
+            // 
+            this.btnRunAllTests.Location = new System.Drawing.Point(360, 116);
+            this.btnRunAllTests.Name = "btnRunAllTests";
+            this.btnRunAllTests.Size = new System.Drawing.Size(104, 28);
+            this.btnRunAllTests.TabIndex = 23;
+            this.btnRunAllTests.Text = "Run All";
+            this.btnRunAllTests.UseVisualStyleBackColor = true;
+            this.btnRunAllTests.Click += new System.EventHandler(this.btnRunAllTests_Click);
+            // 
+            // btnStopRun
+            // 
+            this.btnStopRun.Location = new System.Drawing.Point(472, 116);
+            this.btnStopRun.Name = "btnStopRun";
+            this.btnStopRun.Size = new System.Drawing.Size(96, 28);
+            this.btnStopRun.TabIndex = 24;
+            this.btnStopRun.Text = "Stop Run";
+            this.btnStopRun.UseVisualStyleBackColor = true;
+            this.btnStopRun.Click += new System.EventHandler(this.btnStopRun_Click);
+            // 
+            // lblRunStatus
+            // 
+            this.lblRunStatus.AutoSize = true;
+            this.lblRunStatus.Location = new System.Drawing.Point(584, 122);
+            this.lblRunStatus.Name = "lblRunStatus";
+            this.lblRunStatus.Size = new System.Drawing.Size(49, 17);
+            this.lblRunStatus.TabIndex = 25;
+            this.lblRunStatus.Text = "Status";
+            // 
+            // txtRunStatus
+            // 
+            this.txtRunStatus.Location = new System.Drawing.Point(640, 119);
+            this.txtRunStatus.Name = "txtRunStatus";
+            this.txtRunStatus.ReadOnly = true;
+            this.txtRunStatus.Size = new System.Drawing.Size(512, 22);
+            this.txtRunStatus.TabIndex = 26;
             // 
             // grpInspectedElement
             // 
@@ -988,12 +1059,170 @@
             this.ForbiddenMatchType.Name = "ForbiddenMatchType";
             this.ForbiddenMatchType.Width = 82;
             // 
+            // grpRunResults
+            // 
+            this.grpRunResults.Controls.Add(this.txtRunReportPath);
+            this.grpRunResults.Controls.Add(this.lblRunReportPath);
+            this.grpRunResults.Controls.Add(this.lblRunSteps);
+            this.grpRunResults.Controls.Add(this.lblRunTests);
+            this.grpRunResults.Controls.Add(this.grdRunSteps);
+            this.grpRunResults.Controls.Add(this.grdRunTests);
+            this.grpRunResults.Location = new System.Drawing.Point(24, 1204);
+            this.grpRunResults.Name = "grpRunResults";
+            this.grpRunResults.Size = new System.Drawing.Size(1128, 300);
+            this.grpRunResults.TabIndex = 27;
+            this.grpRunResults.TabStop = false;
+            this.grpRunResults.Text = "Run Results";
+            // 
+            // txtRunReportPath
+            // 
+            this.txtRunReportPath.Location = new System.Drawing.Point(112, 264);
+            this.txtRunReportPath.Name = "txtRunReportPath";
+            this.txtRunReportPath.ReadOnly = true;
+            this.txtRunReportPath.Size = new System.Drawing.Size(984, 22);
+            this.txtRunReportPath.TabIndex = 5;
+            // 
+            // lblRunReportPath
+            // 
+            this.lblRunReportPath.AutoSize = true;
+            this.lblRunReportPath.Location = new System.Drawing.Point(16, 267);
+            this.lblRunReportPath.Name = "lblRunReportPath";
+            this.lblRunReportPath.Size = new System.Drawing.Size(85, 17);
+            this.lblRunReportPath.TabIndex = 4;
+            this.lblRunReportPath.Text = "Report Path";
+            // 
+            // lblRunSteps
+            // 
+            this.lblRunSteps.AutoSize = true;
+            this.lblRunSteps.Location = new System.Drawing.Point(576, 28);
+            this.lblRunSteps.Name = "lblRunSteps";
+            this.lblRunSteps.Size = new System.Drawing.Size(102, 17);
+            this.lblRunSteps.TabIndex = 3;
+            this.lblRunSteps.Text = "Step Progress";
+            // 
+            // lblRunTests
+            // 
+            this.lblRunTests.AutoSize = true;
+            this.lblRunTests.Location = new System.Drawing.Point(16, 28);
+            this.lblRunTests.Name = "lblRunTests";
+            this.lblRunTests.Size = new System.Drawing.Size(84, 17);
+            this.lblRunTests.TabIndex = 2;
+            this.lblRunTests.Text = "Test Results";
+            // 
+            // grdRunSteps
+            // 
+            this.grdRunSteps.AllowUserToAddRows = false;
+            this.grdRunSteps.AllowUserToDeleteRows = false;
+            this.grdRunSteps.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.grdRunSteps.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.RunStepId,
+            this.RunStepAction,
+            this.RunStepStatus,
+            this.RunStepMessage,
+            this.RunStepScreenshot});
+            this.grdRunSteps.Location = new System.Drawing.Point(576, 56);
+            this.grdRunSteps.MultiSelect = false;
+            this.grdRunSteps.Name = "grdRunSteps";
+            this.grdRunSteps.ReadOnly = true;
+            this.grdRunSteps.RowHeadersVisible = false;
+            this.grdRunSteps.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.grdRunSteps.Size = new System.Drawing.Size(520, 200);
+            this.grdRunSteps.TabIndex = 1;
+            // 
+            // RunStepId
+            // 
+            this.RunStepId.HeaderText = "Id";
+            this.RunStepId.Name = "RunStepId";
+            this.RunStepId.ReadOnly = true;
+            this.RunStepId.Width = 48;
+            // 
+            // RunStepAction
+            // 
+            this.RunStepAction.HeaderText = "Action";
+            this.RunStepAction.Name = "RunStepAction";
+            this.RunStepAction.ReadOnly = true;
+            this.RunStepAction.Width = 88;
+            // 
+            // RunStepStatus
+            // 
+            this.RunStepStatus.HeaderText = "Status";
+            this.RunStepStatus.Name = "RunStepStatus";
+            this.RunStepStatus.ReadOnly = true;
+            this.RunStepStatus.Width = 84;
+            // 
+            // RunStepMessage
+            // 
+            this.RunStepMessage.HeaderText = "Message";
+            this.RunStepMessage.Name = "RunStepMessage";
+            this.RunStepMessage.ReadOnly = true;
+            this.RunStepMessage.Width = 180;
+            // 
+            // RunStepScreenshot
+            // 
+            this.RunStepScreenshot.HeaderText = "Screenshot";
+            this.RunStepScreenshot.Name = "RunStepScreenshot";
+            this.RunStepScreenshot.ReadOnly = true;
+            this.RunStepScreenshot.Width = 120;
+            // 
+            // grdRunTests
+            // 
+            this.grdRunTests.AllowUserToAddRows = false;
+            this.grdRunTests.AllowUserToDeleteRows = false;
+            this.grdRunTests.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.grdRunTests.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.RunTestName,
+            this.RunTestStatus,
+            this.RunTestFailure,
+            this.RunTestScreenshot});
+            this.grdRunTests.Location = new System.Drawing.Point(16, 56);
+            this.grdRunTests.MultiSelect = false;
+            this.grdRunTests.Name = "grdRunTests";
+            this.grdRunTests.ReadOnly = true;
+            this.grdRunTests.RowHeadersVisible = false;
+            this.grdRunTests.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.grdRunTests.Size = new System.Drawing.Size(536, 200);
+            this.grdRunTests.TabIndex = 0;
+            // 
+            // RunTestName
+            // 
+            this.RunTestName.HeaderText = "Test";
+            this.RunTestName.Name = "RunTestName";
+            this.RunTestName.ReadOnly = true;
+            this.RunTestName.Width = 140;
+            // 
+            // RunTestStatus
+            // 
+            this.RunTestStatus.HeaderText = "Status";
+            this.RunTestStatus.Name = "RunTestStatus";
+            this.RunTestStatus.ReadOnly = true;
+            this.RunTestStatus.Width = 88;
+            // 
+            // RunTestFailure
+            // 
+            this.RunTestFailure.HeaderText = "Failure";
+            this.RunTestFailure.Name = "RunTestFailure";
+            this.RunTestFailure.ReadOnly = true;
+            this.RunTestFailure.Width = 184;
+            // 
+            // RunTestScreenshot
+            // 
+            this.RunTestScreenshot.HeaderText = "Screenshot";
+            this.RunTestScreenshot.Name = "RunTestScreenshot";
+            this.RunTestScreenshot.ReadOnly = true;
+            this.RunTestScreenshot.Width = 120;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(1343, 1055);
+            this.ClientSize = new System.Drawing.Size(1343, 1100);
+            this.Controls.Add(this.grpRunResults);
+            this.Controls.Add(this.txtRunStatus);
+            this.Controls.Add(this.lblRunStatus);
+            this.Controls.Add(this.btnStopRun);
+            this.Controls.Add(this.btnRunAllTests);
+            this.Controls.Add(this.btnRunSelectedTest);
             this.Controls.Add(this.grpConditions);
             this.Controls.Add(this.chkAutoRelaunch);
             this.Controls.Add(this.lblDefaultDelaySuffix);
@@ -1032,6 +1261,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.grdValueChecks)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.grdExpectedWindows)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.grdForbiddenWindows)).EndInit();
+            this.grpRunResults.ResumeLayout(false);
+            this.grpRunResults.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grdRunSteps)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.grdRunTests)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1128,5 +1361,26 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ForbiddenWindowId;
         private System.Windows.Forms.DataGridViewTextBoxColumn ForbiddenPattern;
         private System.Windows.Forms.DataGridViewComboBoxColumn ForbiddenMatchType;
+        private System.Windows.Forms.Button btnRunSelectedTest;
+        private System.Windows.Forms.Button btnRunAllTests;
+        private System.Windows.Forms.Button btnStopRun;
+        private System.Windows.Forms.Label lblRunStatus;
+        private System.Windows.Forms.TextBox txtRunStatus;
+        private System.Windows.Forms.GroupBox grpRunResults;
+        private System.Windows.Forms.TextBox txtRunReportPath;
+        private System.Windows.Forms.Label lblRunReportPath;
+        private System.Windows.Forms.Label lblRunSteps;
+        private System.Windows.Forms.Label lblRunTests;
+        private System.Windows.Forms.DataGridView grdRunSteps;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RunStepId;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RunStepAction;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RunStepStatus;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RunStepMessage;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RunStepScreenshot;
+        private System.Windows.Forms.DataGridView grdRunTests;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RunTestName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RunTestStatus;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RunTestFailure;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RunTestScreenshot;
     }
 }

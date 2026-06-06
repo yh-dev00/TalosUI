@@ -10,7 +10,8 @@ namespace TalosCore
         NotStarted,
         Running,
         Passed,
-        Failed
+        Failed,
+        Canceled
     }
 
     public enum TestRunnerProgressKind
@@ -176,7 +177,17 @@ namespace TalosCore
                 throw new ArgumentNullException("suite");
             }
 
-            return RunTests(suite, suite.Tests);
+            return RunTests(suite, suite.Tests, CancellationToken.None);
+        }
+
+        public TestSuiteRunResult RunSuite(TestSuite suite, CancellationToken cancellationToken)
+        {
+            if (suite == null)
+            {
+                throw new ArgumentNullException("suite");
+            }
+
+            return RunTests(suite, suite.Tests, cancellationToken);
         }
 
         public TestSuiteRunResult RunSingleTest(TestSuite suite, TestCase testCase)
@@ -186,10 +197,25 @@ namespace TalosCore
                 throw new ArgumentNullException("testCase");
             }
 
-            return RunTests(suite, new TestCase[] { testCase });
+            return RunTests(suite, new TestCase[] { testCase }, CancellationToken.None);
+        }
+
+        public TestSuiteRunResult RunSingleTest(TestSuite suite, TestCase testCase, CancellationToken cancellationToken)
+        {
+            if (testCase == null)
+            {
+                throw new ArgumentNullException("testCase");
+            }
+
+            return RunTests(suite, new TestCase[] { testCase }, cancellationToken);
         }
 
         public TestSuiteRunResult RunTests(TestSuite suite, IEnumerable<TestCase> testsToRun)
+        {
+            return RunTests(suite, testsToRun, CancellationToken.None);
+        }
+
+        public TestSuiteRunResult RunTests(TestSuite suite, IEnumerable<TestCase> testsToRun, CancellationToken cancellationToken)
         {
             if (suite == null)
             {
@@ -207,10 +233,25 @@ namespace TalosCore
             {
                 for (int i = 0; i < tests.Count; i++)
                 {
-                    TestCaseRunResult testResult = RunTestCaseInternal(suite, suiteResult, tests[i]);
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        suiteResult.Status = RunResultStatus.Canceled;
+                        suiteResult.FailureReason = "Run canceled.";
+                        Report(TestRunnerProgressKind.Message, suiteResult, null, null, suiteResult.FailureReason);
+                        break;
+                    }
+
+                    TestCaseRunResult testResult = RunTestCaseInternal(suite, suiteResult, tests[i], cancellationToken);
                     suiteResult.Tests.Add(testResult);
                     talosLog.LogTestResult(testResult);
                     Report(TestRunnerProgressKind.TestCompleted, suiteResult, testResult, null, testResult.FailureReason);
+
+                    if (testResult.Status == RunResultStatus.Canceled)
+                    {
+                        suiteResult.Status = RunResultStatus.Canceled;
+                        suiteResult.FailureReason = "Run canceled.";
+                        break;
+                    }
 
                     if (suite.AutoRelaunchBetweenTests && i < tests.Count - 1)
                     {
@@ -221,7 +262,10 @@ namespace TalosCore
                     }
                 }
 
-                suiteResult.Status = suiteResult.FailedCount == 0 ? RunResultStatus.Passed : RunResultStatus.Failed;
+                if (suiteResult.Status != RunResultStatus.Canceled)
+                {
+                    suiteResult.Status = suiteResult.FailedCount == 0 ? RunResultStatus.Passed : RunResultStatus.Failed;
+                }
             }
             catch (Exception ex)
             {
@@ -242,7 +286,8 @@ namespace TalosCore
         private TestCaseRunResult RunTestCaseInternal(
             TestSuite suite,
             TestSuiteRunResult suiteResult,
-            TestCase testCase)
+            TestCase testCase,
+            CancellationToken cancellationToken)
         {
             TestCaseRunResult testResult = CreateTestResult(testCase);
             testResult.Status = RunResultStatus.Running;
@@ -263,15 +308,30 @@ namespace TalosCore
 
                 foreach (Step step in SafeSteps(testCase))
                 {
-                    StepRunResult stepResult = RunStep(suite, suiteResult, testResult, testCase, step, expectedWindowsSeen);
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return CancelTest(testResult);
+                    }
+
+                    StepRunResult stepResult = RunStep(suite, suiteResult, testResult, testCase, step, expectedWindowsSeen, cancellationToken);
                     testResult.Steps.Add(stepResult);
                     talosLog.LogStepResult(testResult, stepResult);
                     Report(TestRunnerProgressKind.StepCompleted, suiteResult, testResult, stepResult, stepResult.Message);
+
+                    if (stepResult.Status == RunResultStatus.Canceled)
+                    {
+                        return CancelTest(testResult);
+                    }
 
                     if (stepResult.Status == RunResultStatus.Failed)
                     {
                         return FailTest(testResult, stepResult, stepResult.Message);
                     }
+                }
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return CancelTest(testResult);
                 }
 
                 string conditionFailure = EvaluateEndOfTestConditions(testCase, expectedWindowsSeen);
@@ -297,7 +357,8 @@ namespace TalosCore
             TestCaseRunResult testResult,
             TestCase testCase,
             Step step,
-            HashSet<string> expectedWindowsSeen)
+            HashSet<string> expectedWindowsSeen,
+            CancellationToken cancellationToken)
         {
             StepRunResult stepResult = CreateStepResult(step);
             stepResult.Status = RunResultStatus.Running;
@@ -326,9 +387,13 @@ namespace TalosCore
 
             int delayMs = GetDelayMs(suite, step);
 
-            if (delayMs > 0)
+            if (delayMs > 0 && cancellationToken.WaitHandle.WaitOne(delayMs))
             {
-                Thread.Sleep(delayMs);
+                return CancelStep(stepResult);
+            }
+            else if (cancellationToken.IsCancellationRequested)
+            {
+                return CancelStep(stepResult);
             }
 
             if (HasTargetCrashed())
@@ -621,10 +686,26 @@ namespace TalosCore
             return testResult;
         }
 
+        private TestCaseRunResult CancelTest(TestCaseRunResult testResult)
+        {
+            testResult.Status = RunResultStatus.Canceled;
+            testResult.FailureReason = "Run canceled.";
+            testResult.EndedUtc = DateTime.UtcNow;
+            return testResult;
+        }
+
         private StepRunResult FailStep(StepRunResult stepResult, string message)
         {
             stepResult.Status = RunResultStatus.Failed;
             stepResult.Message = message ?? string.Empty;
+            stepResult.EndedUtc = DateTime.UtcNow;
+            return stepResult;
+        }
+
+        private StepRunResult CancelStep(StepRunResult stepResult)
+        {
+            stepResult.Status = RunResultStatus.Canceled;
+            stepResult.Message = "Run canceled.";
             stepResult.EndedUtc = DateTime.UtcNow;
             return stepResult;
         }

@@ -5,6 +5,8 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TalosCore;
 
@@ -22,7 +24,7 @@ namespace TalosUI
         private readonly ITargetProcessManager targetProcessManager;
         private readonly IUiAutomationService uiAutomationService;
         private readonly CTalosMemory talosMemory;
-        private readonly Timer inspectHoverTimer;
+        private readonly System.Windows.Forms.Timer inspectHoverTimer;
         private readonly LowLevelMouseProc mouseHookCallback;
         private TestSuite currentSuite;
         private string currentSuitePath;
@@ -40,6 +42,8 @@ namespace TalosUI
         private bool refreshingConditionGrids;
         private bool suppressDirtyTracking;
         private bool isSuiteDirty;
+        private CancellationTokenSource runCancellationTokenSource;
+        private Task<TestSuiteRunResult> currentRunTask;
 
         public MainForm()
         {
@@ -50,7 +54,7 @@ namespace TalosUI
             currentSuite = CreateDefaultSuite();
             currentTestCase = currentSuite.Tests[0];
             mouseHookCallback = MouseHookProc;
-            inspectHoverTimer = new Timer();
+            inspectHoverTimer = new System.Windows.Forms.Timer();
             inspectHoverTimer.Interval = InspectPollIntervalMs;
             inspectHoverTimer.Tick += inspectHoverTimer_Tick;
             currentState = TalosUiState.Idle;
@@ -174,6 +178,318 @@ namespace TalosUI
         private void btnStopRecord_Click(object sender, EventArgs e)
         {
             SetUiState(TalosUiState.Idle);
+        }
+
+        private void btnRunSelectedTest_Click(object sender, EventArgs e)
+        {
+            StartSuiteRun(true);
+        }
+
+        private void btnRunAllTests_Click(object sender, EventArgs e)
+        {
+            StartSuiteRun(false);
+        }
+
+        private void btnStopRun_Click(object sender, EventArgs e)
+        {
+            if (runCancellationTokenSource != null && !runCancellationTokenSource.IsCancellationRequested)
+            {
+                runCancellationTokenSource.Cancel();
+                SetRunStatus("Cancel requested. Waiting for the current runner checkpoint...");
+                btnStopRun.Enabled = false;
+            }
+        }
+
+        private void StartSuiteRun(bool selectedOnly)
+        {
+            if (currentState == TalosUiState.Running)
+            {
+                return;
+            }
+
+            if (selectedOnly && currentTestCase == null)
+            {
+                MessageBox.Show(
+                    "Select a test case before running.",
+                    "TalosUI",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
+            CommitGridEdits();
+            ApplyCurrentTestCaseDetailsFromEditor();
+
+            if (!ValidateSuiteForSaveOrRun(true, true))
+            {
+                return;
+            }
+
+            int selectedTestIndex = currentTestCase == null ? -1 : currentSuite.Tests.IndexOf(currentTestCase);
+            TestSuite suiteToRun = CopySuite(currentSuite);
+            TestCase selectedTestToRun = selectedOnly && selectedTestIndex >= 0 && selectedTestIndex < suiteToRun.Tests.Count
+                ? suiteToRun.Tests[selectedTestIndex]
+                : null;
+
+            ClearRunResults();
+            SetRunStatus(selectedOnly ? "Running selected test..." : "Running all tests...");
+            SetUiState(TalosUiState.Running);
+
+            runCancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = runCancellationTokenSource.Token;
+            UpdateUiState();
+
+            currentRunTask = Task.Factory.StartNew<TestSuiteRunResult>(
+                delegate
+                {
+                    TestRunner runner = new TestRunner(uiAutomationService, targetProcessManager, new CTalosLog());
+                    runner.ProgressChanged += TestRunner_ProgressChanged;
+
+                    if (selectedOnly)
+                    {
+                        return runner.RunSingleTest(suiteToRun, selectedTestToRun, cancellationToken);
+                    }
+
+                    return runner.RunSuite(suiteToRun, cancellationToken);
+                },
+                CancellationToken.None,
+                TaskCreationOptions.None,
+                TaskScheduler.Default);
+
+            currentRunTask.ContinueWith(
+                FinishSuiteRun,
+                CancellationToken.None,
+                TaskContinuationOptions.None,
+                TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        private void CommitGridEdits()
+        {
+            grdRecordedSteps.EndEdit();
+            grdValueChecks.EndEdit();
+            grdExpectedWindows.EndEdit();
+            grdForbiddenWindows.EndEdit();
+        }
+
+        private void FinishSuiteRun(Task<TestSuiteRunResult> completedTask)
+        {
+            TestSuiteRunResult result = null;
+
+            try
+            {
+                if (completedTask.IsFaulted)
+                {
+                    string message = completedTask.Exception == null || completedTask.Exception.GetBaseException() == null
+                        ? "Run failed."
+                        : completedTask.Exception.GetBaseException().Message;
+                    SetRunStatus("Run failed: " + message);
+                    MessageBox.Show(
+                        message,
+                        "Run failed",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                    return;
+                }
+
+                result = completedTask.Result;
+                RefreshRunResults(result);
+                SetRunStatus(FormatSuiteRunStatus(result));
+                txtRunReportPath.Text = result == null ? string.Empty : result.OutputDirectory;
+            }
+            finally
+            {
+                if (runCancellationTokenSource != null)
+                {
+                    runCancellationTokenSource.Dispose();
+                    runCancellationTokenSource = null;
+                }
+
+                currentRunTask = null;
+                SetUiState(TalosUiState.Idle);
+                UpdateUiState();
+            }
+        }
+
+        private void TestRunner_ProgressChanged(object sender, TestRunnerProgressEventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new EventHandler<TestRunnerProgressEventArgs>(TestRunner_ProgressChanged), new object[] { sender, e });
+                return;
+            }
+
+            ApplyRunProgress(e);
+        }
+
+        private void ApplyRunProgress(TestRunnerProgressEventArgs e)
+        {
+            if (e == null)
+            {
+                return;
+            }
+
+            switch (e.Kind)
+            {
+                case TestRunnerProgressKind.SuiteStarted:
+                    SetRunStatus("Suite run started.");
+                    break;
+                case TestRunnerProgressKind.SuiteCompleted:
+                    RefreshRunResults(e.SuiteResult);
+                    SetRunStatus(FormatSuiteRunStatus(e.SuiteResult));
+                    txtRunReportPath.Text = e.SuiteResult == null ? string.Empty : e.SuiteResult.OutputDirectory;
+                    break;
+                case TestRunnerProgressKind.TestStarted:
+                    grdRunSteps.Rows.Clear();
+                    UpdateRunTestRow(e.TestResult);
+                    SetRunStatus("Running test: " + (e.TestResult == null ? string.Empty : e.TestResult.TestName));
+                    break;
+                case TestRunnerProgressKind.TestCompleted:
+                    UpdateRunTestRow(e.TestResult);
+                    if (e.TestResult != null && e.TestResult.Status == RunResultStatus.Failed)
+                    {
+                        SetRunStatus("Test failed: " + e.TestResult.FailureReason);
+                    }
+                    break;
+                case TestRunnerProgressKind.StepStarted:
+                case TestRunnerProgressKind.StepCompleted:
+                    UpdateRunStepRow(e.StepResult);
+                    break;
+                case TestRunnerProgressKind.Message:
+                    if (!string.IsNullOrWhiteSpace(e.Message))
+                    {
+                        SetRunStatus(e.Message);
+                    }
+                    break;
+            }
+        }
+
+        private void ClearRunResults()
+        {
+            grdRunTests.Rows.Clear();
+            grdRunSteps.Rows.Clear();
+            txtRunReportPath.Text = string.Empty;
+        }
+
+        private void RefreshRunResults(TestSuiteRunResult result)
+        {
+            grdRunTests.Rows.Clear();
+            grdRunSteps.Rows.Clear();
+
+            if (result == null || result.Tests == null)
+            {
+                return;
+            }
+
+            foreach (TestCaseRunResult test in result.Tests)
+            {
+                UpdateRunTestRow(test);
+            }
+
+            if (result.Tests.Count > 0)
+            {
+                TestCaseRunResult lastTest = result.Tests[result.Tests.Count - 1];
+
+                if (lastTest != null && lastTest.Steps != null)
+                {
+                    foreach (StepRunResult step in lastTest.Steps)
+                    {
+                        UpdateRunStepRow(step);
+                    }
+                }
+            }
+        }
+
+        private void UpdateRunTestRow(TestCaseRunResult testResult)
+        {
+            if (testResult == null)
+            {
+                return;
+            }
+
+            DataGridViewRow row = FindRunTestRow(testResult.TestName);
+
+            if (row == null)
+            {
+                int rowIndex = grdRunTests.Rows.Add();
+                row = grdRunTests.Rows[rowIndex];
+            }
+
+            row.Cells["RunTestName"].Value = testResult.TestName;
+            row.Cells["RunTestStatus"].Value = testResult.Status.ToString();
+            row.Cells["RunTestFailure"].Value = testResult.FailureReason;
+            row.Cells["RunTestScreenshot"].Value = testResult.ScreenshotPath;
+        }
+
+        private DataGridViewRow FindRunTestRow(string testName)
+        {
+            foreach (DataGridViewRow row in grdRunTests.Rows)
+            {
+                if (string.Equals(Convert.ToString(row.Cells["RunTestName"].Value), testName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return row;
+                }
+            }
+
+            return null;
+        }
+
+        private void UpdateRunStepRow(StepRunResult stepResult)
+        {
+            if (stepResult == null)
+            {
+                return;
+            }
+
+            DataGridViewRow row = FindRunStepRow(stepResult.StepId);
+
+            if (row == null)
+            {
+                int rowIndex = grdRunSteps.Rows.Add();
+                row = grdRunSteps.Rows[rowIndex];
+            }
+
+            row.Cells["RunStepId"].Value = stepResult.StepId;
+            row.Cells["RunStepAction"].Value = stepResult.Action.ToString();
+            row.Cells["RunStepStatus"].Value = stepResult.Status.ToString();
+            row.Cells["RunStepMessage"].Value = stepResult.Message;
+            row.Cells["RunStepScreenshot"].Value = stepResult.ScreenshotPath;
+        }
+
+        private DataGridViewRow FindRunStepRow(int stepId)
+        {
+            foreach (DataGridViewRow row in grdRunSteps.Rows)
+            {
+                object value = row.Cells["RunStepId"].Value;
+
+                if (value != null && Convert.ToString(value) == stepId.ToString())
+                {
+                    return row;
+                }
+            }
+
+            return null;
+        }
+
+        private void SetRunStatus(string status)
+        {
+            txtRunStatus.Text = status ?? string.Empty;
+        }
+
+        private string FormatSuiteRunStatus(TestSuiteRunResult result)
+        {
+            if (result == null)
+            {
+                return string.Empty;
+            }
+
+            string status = "Run " + result.Status + ". Passed: " + result.PassedCount + ", Failed: " + result.FailedCount + ".";
+
+            if (!string.IsNullOrWhiteSpace(result.FailureReason))
+            {
+                status += " " + result.FailureReason;
+            }
+
+            return status;
         }
 
         private void listBoxTestCase_SelectedIndexChanged(object sender, EventArgs e)
@@ -1180,7 +1496,7 @@ namespace TalosUI
 
         private void UpdateRecordedStepButtons()
         {
-            bool hasMultipleSteps = currentTestCase != null && currentTestCase.Steps.Count > 1;
+            bool hasMultipleSteps = currentState != TalosUiState.Running && currentTestCase != null && currentTestCase.Steps.Count > 1;
             btnMoveStepUp.Enabled = hasMultipleSteps;
             btnMoveStepDown.Enabled = hasMultipleSteps;
         }
@@ -1378,9 +1694,43 @@ namespace TalosUI
             return parts.Count == 0 ? locator.ControlType : string.Join(" | ", parts.ToArray());
         }
 
+        private TestSuite CopySuite(TestSuite source)
+        {
+            TestSuite copy = new TestSuite();
+
+            if (source == null)
+            {
+                return copy;
+            }
+
+            copy.SchemaVersion = source.SchemaVersion;
+            copy.SuiteName = source.SuiteName ?? string.Empty;
+            copy.TargetAppPath = source.TargetAppPath ?? string.Empty;
+            copy.LaunchParams = source.LaunchParams ?? string.Empty;
+            copy.DefaultFixedDelayMs = source.DefaultFixedDelayMs;
+            copy.AutoRelaunchBetweenTests = source.AutoRelaunchBetweenTests;
+            copy.Tests = new List<TestCase>();
+
+            if (source.Tests != null)
+            {
+                foreach (TestCase testCase in source.Tests)
+                {
+                    copy.Tests.Add(CopyTestCase(testCase));
+                }
+            }
+
+            return copy;
+        }
+
         private TestCase CopyTestCase(TestCase source)
         {
             TestCase copy = new TestCase();
+
+            if (source == null)
+            {
+                return copy;
+            }
+
             copy.Name = source.Name ?? string.Empty;
             copy.Description = source.Description ?? string.Empty;
             copy.Steps = new List<Step>();
@@ -1694,11 +2044,17 @@ namespace TalosUI
         {
             lblUiStateValue.Text = currentState.ToString();
             bool canEdit = currentState != TalosUiState.Running;
+            TsDropDownBtnFile.Enabled = canEdit;
             btnStartInspect.Enabled = currentState == TalosUiState.Idle;
             btnStopInspect.Enabled = currentState == TalosUiState.Inspect || currentState == TalosUiState.Record;
             btnRecord.Enabled = currentState != TalosUiState.Running;
             btnStartRecord.Enabled = currentState == TalosUiState.Idle || currentState == TalosUiState.Inspect;
             btnStopRecord.Enabled = currentState == TalosUiState.Record;
+            btnRunSelectedTest.Enabled = canEdit && currentTestCase != null;
+            btnRunAllTests.Enabled = canEdit && currentSuite != null && currentSuite.Tests != null && currentSuite.Tests.Count > 0;
+            btnStopRun.Enabled = currentState == TalosUiState.Running &&
+                runCancellationTokenSource != null &&
+                !runCancellationTokenSource.IsCancellationRequested;
             edtTargetPath.Enabled = canEdit;
             btnSelectTarget.Enabled = canEdit;
             txtSuiteName.Enabled = canEdit;
@@ -1713,6 +2069,7 @@ namespace TalosUI
             grdExpectedWindows.Enabled = canEdit && currentTestCase != null;
             grdForbiddenWindows.Enabled = canEdit && currentTestCase != null;
             UpdateTestCaseButtons();
+            UpdateRecordedStepButtons();
             UpdateConditionButtons();
         }
 
@@ -1809,6 +2166,18 @@ namespace TalosUI
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            if (currentState == TalosUiState.Running)
+            {
+                e.Cancel = true;
+                btnStopRun_Click(this, EventArgs.Empty);
+                MessageBox.Show(
+                    "A test run is still active. Stop the run and wait for it to finish before closing TalosUI.",
+                    "TalosUI",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
             if (!ConfirmDiscardUnsavedChanges())
             {
                 e.Cancel = true;

@@ -206,19 +206,19 @@ This checklist is based on `PRD.md` and the current project state. Use it as a l
 - [x] Generate structured JSON report.
 - [x] Capture screenshot on failure.
 - [x] Associate screenshot path with failed test/step.
-- [ ] Show report/log location in the UI after run.
+- [x] Show report/log location in the UI after run.
 
 ## Phase 12 - WinForms Run UI
 
-- [ ] Add launch target button.
-- [ ] Add run selected test button.
-- [ ] Add run all tests button.
-- [ ] Add stop/cancel run button if feasible for v1.
-- [ ] Disable editing controls while running.
-- [ ] Show current run status.
-- [ ] Show per-test pass/fail results.
-- [ ] Show per-step progress/results.
-- [ ] Display clear error messages for invalid target, load/save errors, and run failures.
+- [x] Add launch target button.
+- [x] Add run selected test button.
+- [x] Add run all tests button.
+- [x] Add stop/cancel run button if feasible for v1.
+- [x] Disable editing controls while running.
+- [x] Show current run status.
+- [x] Show per-test pass/fail results.
+- [x] Show per-step progress/results.
+- [x] Display clear error messages for invalid target, load/save errors, and run failures.
 
 ## Phase 13 - Testing
 
