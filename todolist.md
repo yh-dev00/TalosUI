@@ -197,15 +197,15 @@ This checklist is based on `PRD.md` and the current project state. Use it as a l
 
 ## Phase 11 - Logging and Artifacts (`CTalosLog`)
 
-- [ ] Define `CTalosLog` API.
-- [ ] Create run output directory naming convention.
-- [ ] Log run start/end timestamps.
-- [ ] Log per-test status and failure reason.
-- [ ] Log per-step status and messages.
-- [ ] Generate human-readable `.txt` report.
-- [ ] Generate structured JSON report.
-- [ ] Capture screenshot on failure.
-- [ ] Associate screenshot path with failed test/step.
+- [x] Define `CTalosLog` API.
+- [x] Create run output directory naming convention.
+- [x] Log run start/end timestamps.
+- [x] Log per-test status and failure reason.
+- [x] Log per-step status and messages.
+- [x] Generate human-readable `.txt` report.
+- [x] Generate structured JSON report.
+- [x] Capture screenshot on failure.
+- [x] Associate screenshot path with failed test/step.
 - [ ] Show report/log location in the UI after run.
 
 ## Phase 12 - WinForms Run UI

@@ -33,6 +33,10 @@ namespace TalosCore
             Status = RunResultStatus.NotStarted;
             Tests = new List<TestCaseRunResult>();
             FailureReason = string.Empty;
+            OutputDirectory = string.Empty;
+            LogPath = string.Empty;
+            TextReportPath = string.Empty;
+            JsonReportPath = string.Empty;
         }
 
         public string SuiteName { get; set; }
@@ -42,6 +46,10 @@ namespace TalosCore
         public DateTime EndedUtc { get; set; }
         public List<TestCaseRunResult> Tests { get; set; }
         public string FailureReason { get; set; }
+        public string OutputDirectory { get; set; }
+        public string LogPath { get; set; }
+        public string TextReportPath { get; set; }
+        public string JsonReportPath { get; set; }
 
         public int PassedCount
         {
