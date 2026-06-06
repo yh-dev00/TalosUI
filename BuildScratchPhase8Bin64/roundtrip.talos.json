@@ -1,0 +1,37 @@
+﻿{
+  "SchemaVersion": 1,
+  "SuiteName": "Sample Notepad Suite",
+  "TargetAppPath": "C:\\Windows\\System32\\notepad.exe",
+  "LaunchParams": "",
+  "DefaultFixedDelayMs": 500,
+  "AutoRelaunchBetweenTests": false,
+  "Tests": [
+    {
+      "Name": "Launch Notepad",
+      "Description": "Manual smoke-test suite demonstrating persisted suite metadata, conditions, and empty step replay.",
+      "Steps": [
+        
+      ],
+      "Conditions": {
+        "ValueChecks": [
+          
+        ],
+        "ExpectedWindows": [
+          {
+            "MustAppearAtLeastOnce": false,
+            "Id": "expectedWindow1",
+            "Pattern": "Notepad",
+            "MatchType": 0
+          }
+        ],
+        "ForbiddenWindows": [
+          {
+            "Id": "forbiddenWindow1",
+            "Pattern": "error",
+            "MatchType": 0
+          }
+        ]
+      }
+    }
+  ]
+}

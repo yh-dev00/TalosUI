@@ -87,6 +87,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="UIAutomationClient" />
     <Reference Include="UIAutomationTypes" />
@@ -105,6 +106,9 @@
     </Compile>
     <Compile Include="..\Src\TalosModels.cs">
       <Link>TalosModels.cs</Link>
+    </Compile>
+    <Compile Include="..\Src\TalosMemory.cs">
+      <Link>TalosMemory.cs</Link>
     </Compile>
     <Compile Include="..\Src\TalosProcess.cs">
       <Link>TalosProcess.cs</Link>
@@ -141,6 +145,9 @@
     </None>
     <None Include="..\TestAssets\.gitkeep">
       <Link>TestAssets\.gitkeep</Link>
+    </None>
+    <None Include="..\TestAssets\sample-suite.talos.json">
+      <Link>TestAssets\sample-suite.talos.json</Link>
     </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

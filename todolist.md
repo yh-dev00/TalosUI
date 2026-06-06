@@ -131,32 +131,32 @@ This checklist is based on `PRD.md` and the current project state. Use it as a l
 
 ## Phase 7 - Suite and Test Case Editing
 
-- [ ] Add suite metadata editor.
-- [ ] Add target exe browser.
-- [ ] Add launch argument input.
-- [ ] Add default fixed delay input.
-- [ ] Add `AutoRelaunchBetweenTests` checkbox.
-- [ ] Add test case list.
-- [ ] Add create, rename, duplicate, delete test case actions.
-- [ ] Add test case description editor.
-- [ ] Add step list/editor for selected test case.
-- [ ] Add condition editor for value checks.
-- [ ] Add condition editor for expected windows.
-- [ ] Add condition editor for forbidden windows.
-- [ ] Validate required fields before save or run.
+- [x] Add suite metadata editor.
+- [x] Add target exe browser.
+- [x] Add launch argument input.
+- [x] Add default fixed delay input.
+- [x] Add `AutoRelaunchBetweenTests` checkbox.
+- [x] Add test case list.
+- [x] Add create, rename, duplicate, delete test case actions.
+- [x] Add test case description editor.
+- [x] Add step list/editor for selected test case.
+- [x] Add condition editor for value checks.
+- [x] Add condition editor for expected windows.
+- [x] Add condition editor for forbidden windows.
+- [x] Validate required fields before save or run.
 
 ## Phase 8 - Persistence (`CTalosMemory`)
 
-- [ ] Define `CTalosMemory` API.
-- [ ] Implement save suite to `*.talos.json`.
-- [ ] Implement load suite from `*.talos.json`.
-- [ ] Preserve all suite, test, step, locator, and condition fields.
-- [ ] Add current schema version constant.
-- [ ] Reject unsupported newer schema versions with a clear message.
-- [ ] Reject or migrate older schema versions.
-- [ ] Add file dialogs for open/save suite.
-- [ ] Track dirty/unsaved state in the UI.
-- [ ] Add sample suite file for manual testing.
+- [x] Define `CTalosMemory` API.
+- [x] Implement save suite to `*.talos.json`.
+- [x] Implement load suite from `*.talos.json`.
+- [x] Preserve all suite, test, step, locator, and condition fields.
+- [x] Add current schema version constant.
+- [x] Reject unsupported newer schema versions with a clear message.
+- [x] Reject or migrate older schema versions.
+- [x] Add file dialogs for open/save suite.
+- [x] Track dirty/unsaved state in the UI.
+- [x] Add sample suite file for manual testing.
 
 ## Phase 9 - Test Runner
 
