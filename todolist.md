@@ -160,29 +160,29 @@ This checklist is based on `PRD.md` and the current project state. Use it as a l
 
 ## Phase 9 - Test Runner
 
-- [ ] Define result models for suite run, test run, and step run.
-- [ ] Implement `TestRunner` dependencies:
-  - [ ] `IUiAutomationService`
-  - [ ] `ITargetProcessManager`
-  - [ ] `CTalosLog`
-- [ ] Implement run single test case.
-- [ ] Implement run all enabled/selected test cases in order.
-- [ ] Ensure target process is running before each test.
-- [ ] Launch target if needed.
-- [ ] Check for crash before each step.
-- [ ] Locate step element via `FindElement`.
-- [ ] Fail test if element cannot be found.
-- [ ] Perform step action.
-- [ ] Fail test if action fails.
-- [ ] Wait using step delay override or suite default delay.
-- [ ] Check for crash after each step.
-- [ ] Check forbidden windows after each step.
-- [ ] Evaluate value checks at end of test.
-- [ ] Evaluate expected windows at end of test.
-- [ ] Mark test passed only when all steps and conditions succeed.
-- [ ] Stop current test immediately on failure.
-- [ ] Relaunch between tests when configured.
-- [ ] Report progress back to WinForms UI.
+- [x] Define result models for suite run, test run, and step run.
+- [x] Implement `TestRunner` dependencies:
+  - [x] `IUiAutomationService`
+  - [x] `ITargetProcessManager`
+  - [x] `CTalosLog`
+- [x] Implement run single test case.
+- [x] Implement run all enabled/selected test cases in order.
+- [x] Ensure target process is running before each test.
+- [x] Launch target if needed.
+- [x] Check for crash before each step.
+- [x] Locate step element via `FindElement`.
+- [x] Fail test if element cannot be found.
+- [x] Perform step action.
+- [x] Fail test if action fails.
+- [x] Wait using step delay override or suite default delay.
+- [x] Check for crash after each step.
+- [x] Check forbidden windows after each step.
+- [x] Evaluate value checks at end of test.
+- [x] Evaluate expected windows at end of test.
+- [x] Mark test passed only when all steps and conditions succeed.
+- [x] Stop current test immediately on failure.
+- [x] Relaunch between tests when configured.
+- [x] Report progress back to WinForms UI.
 
 ## Phase 10 - Conditions
 
