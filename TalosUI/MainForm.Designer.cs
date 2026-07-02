@@ -301,53 +301,6 @@
             this.lblUiStateValue.TabIndex = 8;
             this.lblUiStateValue.Text = "Idle";
             // 
-            // btnRunSelectedTest
-            // 
-            this.btnRunSelectedTest.Location = new System.Drawing.Point(224, 116);
-            this.btnRunSelectedTest.Name = "btnRunSelectedTest";
-            this.btnRunSelectedTest.Size = new System.Drawing.Size(128, 28);
-            this.btnRunSelectedTest.TabIndex = 22;
-            this.btnRunSelectedTest.Text = "Run Selected";
-            this.btnRunSelectedTest.UseVisualStyleBackColor = true;
-            this.btnRunSelectedTest.Click += new System.EventHandler(this.btnRunSelectedTest_Click);
-            // 
-            // btnRunAllTests
-            // 
-            this.btnRunAllTests.Location = new System.Drawing.Point(360, 116);
-            this.btnRunAllTests.Name = "btnRunAllTests";
-            this.btnRunAllTests.Size = new System.Drawing.Size(104, 28);
-            this.btnRunAllTests.TabIndex = 23;
-            this.btnRunAllTests.Text = "Run All";
-            this.btnRunAllTests.UseVisualStyleBackColor = true;
-            this.btnRunAllTests.Click += new System.EventHandler(this.btnRunAllTests_Click);
-            // 
-            // btnStopRun
-            // 
-            this.btnStopRun.Location = new System.Drawing.Point(472, 116);
-            this.btnStopRun.Name = "btnStopRun";
-            this.btnStopRun.Size = new System.Drawing.Size(96, 28);
-            this.btnStopRun.TabIndex = 24;
-            this.btnStopRun.Text = "Stop Run";
-            this.btnStopRun.UseVisualStyleBackColor = true;
-            this.btnStopRun.Click += new System.EventHandler(this.btnStopRun_Click);
-            // 
-            // lblRunStatus
-            // 
-            this.lblRunStatus.AutoSize = true;
-            this.lblRunStatus.Location = new System.Drawing.Point(584, 122);
-            this.lblRunStatus.Name = "lblRunStatus";
-            this.lblRunStatus.Size = new System.Drawing.Size(49, 17);
-            this.lblRunStatus.TabIndex = 25;
-            this.lblRunStatus.Text = "Status";
-            // 
-            // txtRunStatus
-            // 
-            this.txtRunStatus.Location = new System.Drawing.Point(640, 119);
-            this.txtRunStatus.Name = "txtRunStatus";
-            this.txtRunStatus.ReadOnly = true;
-            this.txtRunStatus.Size = new System.Drawing.Size(512, 22);
-            this.txtRunStatus.TabIndex = 26;
-            // 
             // grpInspectedElement
             // 
             this.grpInspectedElement.Controls.Add(this.txtHowFound);
@@ -1059,6 +1012,53 @@
             this.ForbiddenMatchType.Name = "ForbiddenMatchType";
             this.ForbiddenMatchType.Width = 82;
             // 
+            // btnRunSelectedTest
+            // 
+            this.btnRunSelectedTest.Location = new System.Drawing.Point(224, 116);
+            this.btnRunSelectedTest.Name = "btnRunSelectedTest";
+            this.btnRunSelectedTest.Size = new System.Drawing.Size(128, 28);
+            this.btnRunSelectedTest.TabIndex = 22;
+            this.btnRunSelectedTest.Text = "Run Selected";
+            this.btnRunSelectedTest.UseVisualStyleBackColor = true;
+            this.btnRunSelectedTest.Click += new System.EventHandler(this.btnRunSelectedTest_Click);
+            // 
+            // btnRunAllTests
+            // 
+            this.btnRunAllTests.Location = new System.Drawing.Point(360, 116);
+            this.btnRunAllTests.Name = "btnRunAllTests";
+            this.btnRunAllTests.Size = new System.Drawing.Size(104, 28);
+            this.btnRunAllTests.TabIndex = 23;
+            this.btnRunAllTests.Text = "Run All";
+            this.btnRunAllTests.UseVisualStyleBackColor = true;
+            this.btnRunAllTests.Click += new System.EventHandler(this.btnRunAllTests_Click);
+            // 
+            // btnStopRun
+            // 
+            this.btnStopRun.Location = new System.Drawing.Point(472, 116);
+            this.btnStopRun.Name = "btnStopRun";
+            this.btnStopRun.Size = new System.Drawing.Size(96, 28);
+            this.btnStopRun.TabIndex = 24;
+            this.btnStopRun.Text = "Stop Run";
+            this.btnStopRun.UseVisualStyleBackColor = true;
+            this.btnStopRun.Click += new System.EventHandler(this.btnStopRun_Click);
+            // 
+            // lblRunStatus
+            // 
+            this.lblRunStatus.AutoSize = true;
+            this.lblRunStatus.Location = new System.Drawing.Point(584, 122);
+            this.lblRunStatus.Name = "lblRunStatus";
+            this.lblRunStatus.Size = new System.Drawing.Size(48, 17);
+            this.lblRunStatus.TabIndex = 25;
+            this.lblRunStatus.Text = "Status";
+            // 
+            // txtRunStatus
+            // 
+            this.txtRunStatus.Location = new System.Drawing.Point(640, 119);
+            this.txtRunStatus.Name = "txtRunStatus";
+            this.txtRunStatus.ReadOnly = true;
+            this.txtRunStatus.Size = new System.Drawing.Size(128, 22);
+            this.txtRunStatus.TabIndex = 26;
+            // 
             // grpRunResults
             // 
             this.grpRunResults.Controls.Add(this.txtRunReportPath);
@@ -1087,7 +1087,7 @@
             this.lblRunReportPath.AutoSize = true;
             this.lblRunReportPath.Location = new System.Drawing.Point(16, 267);
             this.lblRunReportPath.Name = "lblRunReportPath";
-            this.lblRunReportPath.Size = new System.Drawing.Size(85, 17);
+            this.lblRunReportPath.Size = new System.Drawing.Size(84, 17);
             this.lblRunReportPath.TabIndex = 4;
             this.lblRunReportPath.Text = "Report Path";
             // 
@@ -1096,7 +1096,7 @@
             this.lblRunSteps.AutoSize = true;
             this.lblRunSteps.Location = new System.Drawing.Point(576, 28);
             this.lblRunSteps.Name = "lblRunSteps";
-            this.lblRunSteps.Size = new System.Drawing.Size(102, 17);
+            this.lblRunSteps.Size = new System.Drawing.Size(98, 17);
             this.lblRunSteps.TabIndex = 3;
             this.lblRunSteps.Text = "Step Progress";
             // 
@@ -1105,7 +1105,7 @@
             this.lblRunTests.AutoSize = true;
             this.lblRunTests.Location = new System.Drawing.Point(16, 28);
             this.lblRunTests.Name = "lblRunTests";
-            this.lblRunTests.Size = new System.Drawing.Size(84, 17);
+            this.lblRunTests.Size = new System.Drawing.Size(87, 17);
             this.lblRunTests.TabIndex = 2;
             this.lblRunTests.Text = "Test Results";
             // 
@@ -1216,7 +1216,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(1343, 1100);
+            this.ClientSize = new System.Drawing.Size(1343, 1055);
             this.Controls.Add(this.grpRunResults);
             this.Controls.Add(this.txtRunStatus);
             this.Controls.Add(this.lblRunStatus);

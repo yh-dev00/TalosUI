@@ -1,0 +1,171 @@
+﻿{
+  "SchemaVersion": 1,
+  "SuiteName": "Untitled Suite",
+  "TargetAppPath": "D:\\Library\\[Stepper-based] swr022-0020-vicat-master-lt-application\\ViCAT-MASTER-LT\\bin\\Release\\ViCAT-MASTER-LT.exe",
+  "LaunchParams": "",
+  "DefaultFixedDelayMs": 0,
+  "AutoRelaunchBetweenTests": false,
+  "Tests": [
+    {
+      "Name": "Recorded Test 1",
+      "Description": "",
+      "Steps": [
+        {
+          "Id": 1,
+          "Locator": {
+            "AutomationId": "TitleBar",
+            "Name": "ViCAT-MASTER-LT",
+            "ControlType": "TitleBar",
+            "ClassName": "",
+            "ProcessId": 27452,
+            "BoundingRectangle": {
+              "X": 635,
+              "Y": 305,
+              "Width": 649,
+              "Height": 29,
+              "IsEmpty": false,
+              "CenterX": 959.5,
+              "CenterY": 319.5
+            },
+            "AncestorPath": [
+              {
+                "AutomationId": "frmMain",
+                "Name": "ViCAT-MASTER-LT",
+                "ControlType": "Window",
+                "IndexWithinParent": 0
+              },
+              {
+                "AutomationId": "frmLicenseActivator",
+                "Name": "ViCAT-MASTER-LT",
+                "ControlType": "Window",
+                "IndexWithinParent": 0
+              },
+              {
+                "AutomationId": "TitleBar",
+                "Name": "ViCAT-MASTER-LT",
+                "ControlType": "TitleBar",
+                "IndexWithinParent": 0
+              }
+            ]
+          },
+          "Action": 0,
+          "Parameters": {
+            "Text": "",
+            "SendKeysText": "",
+            "SelectedItem": ""
+          },
+          "FixedDelayMs": null
+        },
+        {
+          "Id": 2,
+          "Locator": {
+            "AutomationId": "btnLicenseActivation",
+            "Name": "Proceed",
+            "ControlType": "Button",
+            "ClassName": "WindowsForms10.BUTTON.app.0.141b42a_r8_ad1",
+            "ProcessId": 27452,
+            "BoundingRectangle": {
+              "X": 1154,
+              "Y": 678,
+              "Width": 121,
+              "Height": 31,
+              "IsEmpty": false,
+              "CenterX": 1214.5,
+              "CenterY": 693.5
+            },
+            "AncestorPath": [
+              {
+                "AutomationId": "frmMain",
+                "Name": "ViCAT-MASTER-LT",
+                "ControlType": "Window",
+                "IndexWithinParent": 0
+              },
+              {
+                "AutomationId": "frmLicenseActivator",
+                "Name": "ViCAT-MASTER-LT",
+                "ControlType": "Window",
+                "IndexWithinParent": 0
+              },
+              {
+                "AutomationId": "panel3",
+                "Name": "",
+                "ControlType": "Pane",
+                "IndexWithinParent": 0
+              },
+              {
+                "AutomationId": "btnLicenseActivation",
+                "Name": "Proceed",
+                "ControlType": "Button",
+                "IndexWithinParent": 0
+              }
+            ]
+          },
+          "Action": 0,
+          "Parameters": {
+            "Text": "",
+            "SendKeysText": "",
+            "SelectedItem": ""
+          },
+          "FixedDelayMs": null
+        },
+        {
+          "Id": 3,
+          "Locator": {
+            "AutomationId": "1",
+            "Name": "Open",
+            "ControlType": "Button",
+            "ClassName": "Button",
+            "ProcessId": 27452,
+            "BoundingRectangle": {
+              "X": 1075,
+              "Y": 591,
+              "Width": 110,
+              "Height": 33,
+              "IsEmpty": false,
+              "CenterX": 1130,
+              "CenterY": 607.5
+            },
+            "AncestorPath": [
+              {
+                "AutomationId": "frmMain",
+                "Name": "ViCAT-MASTER-LT",
+                "ControlType": "Window",
+                "IndexWithinParent": 0
+              },
+              {
+                "AutomationId": "",
+                "Name": "Load ENI File",
+                "ControlType": "Window",
+                "IndexWithinParent": 0
+              },
+              {
+                "AutomationId": "1",
+                "Name": "Open",
+                "ControlType": "Button",
+                "IndexWithinParent": 0
+              }
+            ]
+          },
+          "Action": 0,
+          "Parameters": {
+            "Text": "",
+            "SendKeysText": "",
+            "SelectedItem": ""
+          },
+          "FixedDelayMs": null
+        }
+      ],
+      "Conditions": {
+        "ValueChecks": [
+          
+        ],
+        "ExpectedWindows": [
+          
+        ],
+        "ForbiddenWindows": [
+          
+        ]
+      }
+    }
+  ]
+}

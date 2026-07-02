@@ -21,11 +21,15 @@ namespace TalosCore
     public class UiAutomationService : IUiAutomationService
     {
         private const double BoundingRectangleTolerance = 8.0;
+        private const double DpiScaleTolerance = 0.01;
         private const int NativeUiAutomationNamePropertyId = 30005;
+        private const uint MonitorDefaultToNearest = 2;
+        private const uint GetAncestorRoot = 2;
+        private const int MdtEffectiveDpi = 0;
 
         public UiElementInfo GetElementAtPoint(int x, int y)
         {
-            AutomationElement element = AutomationElement.FromPoint(new WindowsPoint(x, y));
+            AutomationElement element = GetAutomationElementFromPhysicalPoint(x, y);
             return ToUiElementInfo(element, x, y);
         }
 
@@ -316,15 +320,16 @@ namespace TalosCore
                 return null;
             }
 
-            AutomationElement element = AutomationElement.FromPoint(
-                new WindowsPoint(locator.BoundingRectangle.CenterX, locator.BoundingRectangle.CenterY));
+            AutomationElement element = GetAutomationElementFromPhysicalPoint(
+                locator.BoundingRectangle.CenterX,
+                locator.BoundingRectangle.CenterY);
 
             if (element == null)
             {
                 return null;
             }
 
-            WindowsRect rectangle = element.Current.BoundingRectangle;
+            WindowsRect rectangle = GetBoundingRectangle(element);
 
             if (RectangleWithinTolerance(rectangle, locator.BoundingRectangle))
             {
@@ -332,6 +337,224 @@ namespace TalosCore
             }
 
             return null;
+        }
+
+        private AutomationElement GetAutomationElementFromPhysicalPoint(double physicalX, double physicalY)
+        {
+            DpiVirtualizationContext context = GetDpiVirtualizationContextFromPhysicalPoint(physicalX, physicalY);
+            WindowsPoint providerPoint = PhysicalToProviderPoint(physicalX, physicalY, context);
+            AutomationElement element = AutomationElement.FromPoint(providerPoint);
+
+            if (HasDpiScale(context) && !ElementMatchesProcess(element, context.ProcessId))
+            {
+                element = AutomationElement.FromPoint(new WindowsPoint(physicalX, physicalY));
+            }
+
+            return element;
+        }
+
+        private WindowsPoint PhysicalToProviderPoint(double physicalX, double physicalY, DpiVirtualizationContext context)
+        {
+            if (!HasDpiScale(context))
+            {
+                return new WindowsPoint(physicalX, physicalY);
+            }
+
+            return new WindowsPoint(
+                context.MonitorLeft + ((physicalX - context.MonitorLeft) / context.ScaleX),
+                context.MonitorTop + ((physicalY - context.MonitorTop) / context.ScaleY));
+        }
+
+        private NativePoint PhysicalToNativeProviderPoint(int physicalX, int physicalY)
+        {
+            DpiVirtualizationContext context = GetDpiVirtualizationContextFromPhysicalPoint(physicalX, physicalY);
+            WindowsPoint providerPoint = PhysicalToProviderPoint(physicalX, physicalY, context);
+            return new NativePoint(RoundCoordinate(providerPoint.X), RoundCoordinate(providerPoint.Y));
+        }
+
+        private WindowsRect ProviderToPhysicalRectangle(WindowsRect rectangle, DpiVirtualizationContext context)
+        {
+            if (rectangle.IsEmpty || !HasDpiScale(context))
+            {
+                return rectangle;
+            }
+
+            double left = context.MonitorLeft + ((rectangle.X - context.MonitorLeft) * context.ScaleX);
+            double top = context.MonitorTop + ((rectangle.Y - context.MonitorTop) * context.ScaleY);
+            double right = context.MonitorLeft + (((rectangle.X + rectangle.Width) - context.MonitorLeft) * context.ScaleX);
+            double bottom = context.MonitorTop + (((rectangle.Y + rectangle.Height) - context.MonitorTop) * context.ScaleY);
+
+            return new WindowsRect(left, top, Math.Max(0, right - left), Math.Max(0, bottom - top));
+        }
+
+        private bool ElementMatchesProcess(AutomationElement element, int processId)
+        {
+            if (element == null)
+            {
+                return false;
+            }
+
+            if (processId <= 0)
+            {
+                return true;
+            }
+
+            return GetIntProperty(element, AutomationElement.ProcessIdProperty) == processId;
+        }
+
+        private bool HasDpiScale(DpiVirtualizationContext context)
+        {
+            return context != null &&
+                context.IsValid &&
+                (Math.Abs(context.ScaleX - 1.0) > DpiScaleTolerance ||
+                Math.Abs(context.ScaleY - 1.0) > DpiScaleTolerance);
+        }
+
+        private int RoundCoordinate(double value)
+        {
+            return (int)Math.Round(value, MidpointRounding.AwayFromZero);
+        }
+
+        private DpiVirtualizationContext GetDpiVirtualizationContextFromPhysicalPoint(double physicalX, double physicalY)
+        {
+            NativePoint point = new NativePoint(RoundCoordinate(physicalX), RoundCoordinate(physicalY));
+            IntPtr hwnd = WindowFromPoint(point);
+
+            if (hwnd == IntPtr.Zero)
+            {
+                return new DpiVirtualizationContext();
+            }
+
+            IntPtr monitor = MonitorFromPoint(point, MonitorDefaultToNearest);
+            return CreateDpiVirtualizationContext(hwnd, monitor);
+        }
+
+        private DpiVirtualizationContext GetDpiVirtualizationContextFromWindow(IntPtr hwnd)
+        {
+            if (hwnd == IntPtr.Zero)
+            {
+                return new DpiVirtualizationContext();
+            }
+
+            IntPtr rootWindow = GetRootWindowHandle(hwnd);
+            IntPtr monitor = MonitorFromWindow(rootWindow, MonitorDefaultToNearest);
+            return CreateDpiVirtualizationContext(rootWindow, monitor);
+        }
+
+        private DpiVirtualizationContext CreateDpiVirtualizationContext(IntPtr hwnd, IntPtr monitor)
+        {
+            DpiVirtualizationContext context = new DpiVirtualizationContext();
+
+            if (hwnd == IntPtr.Zero)
+            {
+                return context;
+            }
+
+            IntPtr rootWindow = GetRootWindowHandle(hwnd);
+            context.WindowHandle = rootWindow == IntPtr.Zero ? hwnd : rootWindow;
+
+            uint processId;
+            GetWindowThreadProcessId(context.WindowHandle, out processId);
+            context.ProcessId = processId > int.MaxValue ? 0 : Convert.ToInt32(processId);
+
+            if (monitor == IntPtr.Zero)
+            {
+                monitor = MonitorFromWindow(context.WindowHandle, MonitorDefaultToNearest);
+            }
+
+            if (monitor == IntPtr.Zero)
+            {
+                return context;
+            }
+
+            MonitorInfo monitorInfo = new MonitorInfo();
+            monitorInfo.Size = Marshal.SizeOf(typeof(MonitorInfo));
+
+            if (!GetMonitorInfo(monitor, ref monitorInfo))
+            {
+                return context;
+            }
+
+            uint windowDpi;
+            uint monitorDpiX;
+            uint monitorDpiY;
+
+            if (!TryGetDpiForWindow(context.WindowHandle, out windowDpi) ||
+                !TryGetDpiForMonitor(monitor, out monitorDpiX, out monitorDpiY) ||
+                windowDpi == 0 ||
+                monitorDpiX == 0 ||
+                monitorDpiY == 0)
+            {
+                return context;
+            }
+
+            context.MonitorHandle = monitor;
+            context.MonitorLeft = monitorInfo.Monitor.Left;
+            context.MonitorTop = monitorInfo.Monitor.Top;
+            context.ScaleX = (double)monitorDpiX / (double)windowDpi;
+            context.ScaleY = (double)monitorDpiY / (double)windowDpi;
+            context.IsValid = true;
+            return context;
+        }
+
+        private bool TryGetDpiForWindow(IntPtr hwnd, out uint dpi)
+        {
+            dpi = 0;
+
+            if (hwnd == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            try
+            {
+                dpi = GetDpiForWindowNative(hwnd);
+                return dpi > 0;
+            }
+            catch (EntryPointNotFoundException)
+            {
+                return false;
+            }
+            catch (DllNotFoundException)
+            {
+                return false;
+            }
+        }
+
+        private bool TryGetDpiForMonitor(IntPtr monitor, out uint dpiX, out uint dpiY)
+        {
+            dpiX = 0;
+            dpiY = 0;
+
+            if (monitor == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            try
+            {
+                int result = GetDpiForMonitorNative(monitor, MdtEffectiveDpi, out dpiX, out dpiY);
+                return result == 0 && dpiX > 0 && dpiY > 0;
+            }
+            catch (EntryPointNotFoundException)
+            {
+                return false;
+            }
+            catch (DllNotFoundException)
+            {
+                return false;
+            }
+        }
+
+        private IntPtr GetRootWindowHandle(IntPtr hwnd)
+        {
+            if (hwnd == IntPtr.Zero)
+            {
+                return IntPtr.Zero;
+            }
+
+            IntPtr rootWindow = GetAncestor(hwnd, GetAncestorRoot);
+            return rootWindow == IntPtr.Zero ? hwnd : rootWindow;
         }
 
         private bool InvokeElement(AutomationElement element)
@@ -759,11 +982,12 @@ namespace TalosCore
             name = string.Empty;
             IUIAutomation automation = null;
             IUIAutomationElement nativeElement = null;
+            NativePoint providerPoint = PhysicalToNativeProviderPoint(screenX, screenY);
 
             try
             {
                 automation = (IUIAutomation)new CUIAutomation();
-                nativeElement = automation.ElementFromPoint(new NativePoint(screenX, screenY));
+                nativeElement = automation.ElementFromPoint(providerPoint);
                 return TryGetNativeName(nativeElement, out name);
             }
             catch (COMException)
@@ -857,6 +1081,46 @@ namespace TalosCore
 
         private WindowsRect GetBoundingRectangle(AutomationElement element)
         {
+            return GetPhysicalBoundingRectangle(element);
+        }
+
+        private WindowsRect GetPhysicalBoundingRectangle(AutomationElement element)
+        {
+            if (element == null)
+            {
+                return WindowsRect.Empty;
+            }
+
+            int nativeWindowHandle = GetIntProperty(element, AutomationElement.NativeWindowHandleProperty);
+
+            if (nativeWindowHandle != 0)
+            {
+                WindowsRect windowRectangle;
+
+                if (TryGetPhysicalWindowRectangle(new IntPtr(nativeWindowHandle), out windowRectangle))
+                {
+                    return windowRectangle;
+                }
+            }
+
+            WindowsRect rectangle = GetRawBoundingRectangle(element);
+
+            if (rectangle.IsEmpty || nativeWindowHandle != 0)
+            {
+                return rectangle;
+            }
+
+            // HWND-backed UIA elements already report physical pixels via GetWindowRect.
+            // WinForms/MSAA child elements without their own HWND can report coordinates
+            // in the DPI-unaware target process' virtual screen space, so scale those
+            // provider rectangles back to TalosUI's physical screen coordinate contract.
+            IntPtr containingWindowHandle = GetContainingNativeWindowHandle(element);
+            DpiVirtualizationContext context = GetDpiVirtualizationContextFromWindow(containingWindowHandle);
+            return ProviderToPhysicalRectangle(rectangle, context);
+        }
+
+        private WindowsRect GetRawBoundingRectangle(AutomationElement element)
+        {
             object value = element.GetCurrentPropertyValue(AutomationElement.BoundingRectangleProperty, true);
 
             if (value == AutomationElement.NotSupported || value == null)
@@ -865,6 +1129,55 @@ namespace TalosCore
             }
 
             return (WindowsRect)value;
+        }
+
+        private bool TryGetPhysicalWindowRectangle(IntPtr hwnd, out WindowsRect rectangle)
+        {
+            rectangle = WindowsRect.Empty;
+
+            if (hwnd == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            NativeRect nativeRectangle;
+
+            if (!GetWindowRect(hwnd, out nativeRectangle))
+            {
+                return false;
+            }
+
+            if (nativeRectangle.Right <= nativeRectangle.Left || nativeRectangle.Bottom <= nativeRectangle.Top)
+            {
+                return false;
+            }
+
+            rectangle = new WindowsRect(
+                nativeRectangle.Left,
+                nativeRectangle.Top,
+                nativeRectangle.Right - nativeRectangle.Left,
+                nativeRectangle.Bottom - nativeRectangle.Top);
+            return true;
+        }
+
+        private IntPtr GetContainingNativeWindowHandle(AutomationElement element)
+        {
+            TreeWalker walker = TreeWalker.ControlViewWalker;
+            AutomationElement current = element;
+
+            while (current != null && !AutomationElement.RootElement.Equals(current))
+            {
+                int nativeWindowHandle = GetIntProperty(current, AutomationElement.NativeWindowHandleProperty);
+
+                if (nativeWindowHandle != 0)
+                {
+                    return new IntPtr(nativeWindowHandle);
+                }
+
+                current = walker.GetParent(current);
+            }
+
+            return IntPtr.Zero;
         }
 
         private PersistedRectangle ToPersistedRectangle(WindowsRect rectangle)
@@ -926,6 +1239,30 @@ namespace TalosCore
             return ControlType.Custom;
         }
 
+        private class DpiVirtualizationContext
+        {
+            public DpiVirtualizationContext()
+            {
+                IsValid = false;
+                WindowHandle = IntPtr.Zero;
+                MonitorHandle = IntPtr.Zero;
+                ProcessId = 0;
+                MonitorLeft = 0;
+                MonitorTop = 0;
+                ScaleX = 1.0;
+                ScaleY = 1.0;
+            }
+
+            public bool IsValid;
+            public IntPtr WindowHandle;
+            public IntPtr MonitorHandle;
+            public int ProcessId;
+            public int MonitorLeft;
+            public int MonitorTop;
+            public double ScaleX;
+            public double ScaleY;
+        }
+
         [StructLayout(LayoutKind.Sequential)]
         private struct NativePoint
         {
@@ -938,6 +1275,53 @@ namespace TalosCore
             public int X;
             public int Y;
         }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct NativeRect
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MonitorInfo
+        {
+            public int Size;
+            public NativeRect Monitor;
+            public NativeRect Work;
+            public int Flags;
+        }
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr WindowFromPoint(NativePoint point);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr MonitorFromPoint(NativePoint point, uint flags);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInfo monitorInfo);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetWindowRect(IntPtr hwnd, out NativeRect rectangle);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetAncestor(IntPtr hwnd, uint flags);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern uint GetWindowThreadProcessId(IntPtr hwnd, out uint processId);
+
+        [DllImport("user32.dll", EntryPoint = "GetDpiForWindow")]
+        private static extern uint GetDpiForWindowNative(IntPtr hwnd);
+
+        [DllImport("shcore.dll", EntryPoint = "GetDpiForMonitor")]
+        private static extern int GetDpiForMonitorNative(IntPtr monitor, int dpiType, out uint dpiX, out uint dpiY);
 
         [ComImport]
         [Guid("ff48dba4-60ef-4201-aa87-54103eef594e")]
