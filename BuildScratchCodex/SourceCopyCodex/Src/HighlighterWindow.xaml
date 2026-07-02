@@ -1,0 +1,24 @@
+<Window x:Class="TalosCore.HighlighterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Highlighter"
+        Height="300" Width="300"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowActivated="False"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        Focusable="False"
+        IsHitTestVisible="False">
+    <Border x:Name="HighlightBorder"
+            BorderBrush="#FFFFD400"
+            BorderThickness="3"
+            CornerRadius="2"
+            IsHitTestVisible="False">
+        <Border.Background>
+            <SolidColorBrush Color="#FFFFD400" Opacity="0.18"/>
+        </Border.Background>
+    </Border>
+</Window>

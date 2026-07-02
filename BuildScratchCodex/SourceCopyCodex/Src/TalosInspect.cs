@@ -628,6 +628,21 @@ namespace TalosCore
             return new WindowsRect(left, top, Math.Max(0, right - left), Math.Max(0, bottom - top));
         }
 
+        private bool ElementMatchesProcess(AutomationElement element, int processId)
+        {
+            if (element == null)
+            {
+                return false;
+            }
+
+            if (processId <= 0)
+            {
+                return true;
+            }
+
+            return GetIntProperty(element, AutomationElement.ProcessIdProperty) == processId;
+        }
+
         private bool HasDpiScale(DpiVirtualizationContext context)
         {
             return context != null &&
